@@ -9,6 +9,8 @@ import {
   ruleFormSchema,
   type ImportBatchInput,
 } from "@/lib/validation";
+import { BASE_CURRENCY, toEurCents } from "@/lib/currency";
+import { getRates } from "@/lib/fx";
 import { authedClient, type ActionState } from "./shared";
 
 // Only extracted transactions reach the server — never the raw file.
@@ -16,7 +18,7 @@ import { authedClient, type ActionState } from "./shared";
 export type DuplicateInfo = {
   /** dedupe_hash values that already exist (previous imports). */
   existingHashes: string[];
-  /** "YYYY-MM-DD|cents" of all transactions in range — possible duplicates
+  /** "YYYY-MM-DD|CUR|cents" (in the transaction's own currency) of all transactions in range — possible duplicates
    *  (manual entries, or imports made before a parser change altered the hash). */
   sameDayAmountKeys: string[];
 };
@@ -43,22 +45,41 @@ export async function checkDuplicates(input: {
 
   const { data: inRange } = await supabase
     .from("transactions")
-    .select("date, amount")
+    .select("date, amount, currency, original_amount")
     .gte("date", from)
     .lte("date", to);
 
   return {
     existingHashes: [...existing],
-    sameDayAmountKeys: (inRange ?? []).map((r) => `${r.date}|${toCents(r.amount)}`),
+    sameDayAmountKeys: (inRange ?? []).map(
+      (r) => `${r.date}|${r.currency}|${toCents(r.original_amount ?? r.amount)}`,
+    ),
   };
 }
 
-export type ImportResult = { ok: true; count: number } | { ok: false; error: "invalid" | "saveFailed" };
+export type ImportResult =
+  | { ok: true; count: number }
+  | { ok: false; error: "invalid" | "saveFailed" | "rateUnavailable" };
 
 export async function importTransactions(input: ImportBatchInput): Promise<ImportResult> {
   const parsed = importBatchSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: "invalid" };
   const { rows, ...meta } = parsed.data;
+
+  // Foreign-currency statement: EUR at the rate of each transaction's date.
+  // Fetched before writing anything, so a missing rate aborts cleanly.
+  const rates = meta.currency === BASE_CURRENCY ? null : await getRates(meta.currency, rows.map((r) => r.date));
+  if (rates && [...rates.values()].some((rate) => !rate)) return { ok: false, error: "rateUnavailable" };
+  const money = (cents: number, date: string) => {
+    const rate = rates?.get(date);
+    if (!rate) return { amount: fromCents(cents), currency: BASE_CURRENCY, original_amount: null, fx_rate: null };
+    return {
+      amount: fromCents(toEurCents(cents, rate) || Math.sign(cents)),
+      currency: meta.currency,
+      original_amount: fromCents(cents),
+      fx_rate: rate,
+    };
+  };
   const supabase = await authedClient();
 
   // Drop references to categories/accounts that aren't the user's (RLS hides them).
@@ -83,7 +104,7 @@ export async function importTransactions(input: ImportBatchInput): Promise<Impor
 
   const records = rows.map((r) => ({
     date: r.date,
-    amount: fromCents(r.amount_cents),
+    ...money(r.amount_cents, r.date),
     description: r.description,
     merchant: r.merchant,
     category_id: !r.is_transfer && r.category_id && categoryIds.has(r.category_id) ? r.category_id : null,

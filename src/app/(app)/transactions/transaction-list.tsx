@@ -14,6 +14,7 @@ import { deleteTransactions } from "@/lib/actions/transactions";
 import { formatDate } from "@/lib/dates";
 import { useI18n } from "@/lib/i18n/client";
 import { INTL_LOCALE, fmt } from "@/lib/i18n/types";
+import { formatMoney } from "@/lib/currency";
 import { formatEUR } from "@/lib/money";
 import { filtersToQuery, type TxFilters } from "@/lib/transaction-filters";
 import { cn } from "@/lib/utils";
@@ -144,16 +145,27 @@ export function TransactionList({
                     const account = tx.account_id ? accountById.get(tx.account_id) : undefined;
                     const title = tx.merchant || tx.description || category?.name || t.transactions.noCategory;
                     const isSelected = selected.has(tx.id);
+                    // Foreign currency: original amount first, EUR equivalent below.
+                    const foreign = tx.original_cents !== null && tx.currency !== "EUR";
                     const amount = (
-                      <span
-                        className={cn(
-                          "shrink-0 font-medium tabular-nums",
-                          tx.is_transfer
-                            ? "text-muted-foreground"
-                            : tx.amount_cents > 0 && "text-emerald-600 dark:text-emerald-400",
+                      <span className="flex shrink-0 flex-col items-end">
+                        <span
+                          className={cn(
+                            "font-medium tabular-nums",
+                            tx.is_transfer
+                              ? "text-muted-foreground"
+                              : tx.amount_cents > 0 && "text-emerald-600 dark:text-emerald-400",
+                          )}
+                        >
+                          {foreign
+                            ? formatMoney(tx.original_cents!, tx.currency, { signed: true })
+                            : formatEUR(tx.amount_cents, { signed: true })}
+                        </span>
+                        {foreign && (
+                          <span className="text-xs text-muted-foreground tabular-nums">
+                            ≈ {formatEUR(tx.amount_cents, { signed: true })}
+                          </span>
                         )}
-                      >
-                        {formatEUR(tx.amount_cents, { signed: true })}
                       </span>
                     );
                     const icon = (

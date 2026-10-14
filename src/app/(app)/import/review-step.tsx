@@ -8,7 +8,7 @@ import { createRule } from "@/lib/actions/import";
 import { ruleMatches } from "@/lib/import/rules";
 import { useI18n } from "@/lib/i18n/client";
 import { fmt } from "@/lib/i18n/types";
-import { formatEUR } from "@/lib/money";
+import { formatMoney } from "@/lib/currency";
 import { cn } from "@/lib/utils";
 import type { Category } from "@/lib/data";
 import { ReviewRow } from "./review-row";
@@ -16,6 +16,8 @@ import { TRANSFER, isFlagged, rowAmount, rulePatternFor, type ReviewAction, type
 
 type ReviewStepProps = {
   fileName: string;
+  /** Currency of the statement amounts. */
+  currency: string;
   rows: Row[];
   dispatch: Dispatch<ReviewAction>;
   categories: Category[];
@@ -25,7 +27,7 @@ type ReviewStepProps = {
   error?: string;
 };
 
-export function ReviewStep({ fileName, rows, dispatch, categories, onConfirm, onCancel, saving, error }: ReviewStepProps) {
+export function ReviewStep({ fileName, currency, rows, dispatch, categories, onConfirm, onCancel, saving, error }: ReviewStepProps) {
   const { t } = useI18n();
   const [onlyFlagged, setOnlyFlagged] = useState(false);
   const [ruleMessage, setRuleMessage] = useState<string>();
@@ -173,9 +175,9 @@ export function ReviewStep({ fileName, rows, dispatch, categories, onConfirm, on
               {fmt(t.importer.selected, { selected: summary.selected, total: rows.length })}
             </p>
             <p className="tabular-nums text-muted-foreground">
-              <span className="text-emerald-600 dark:text-emerald-400">{formatEUR(summary.income, { signed: true })}</span>
+              <span className="text-emerald-600 dark:text-emerald-400">{formatMoney(summary.income, currency, { signed: true })}</span>
               {" · "}
-              {formatEUR(summary.expenses, { signed: true })}
+              {formatMoney(summary.expenses, currency, { signed: true })}
             </p>
           </div>
           <Button variant="ghost" onClick={onCancel} disabled={saving}>

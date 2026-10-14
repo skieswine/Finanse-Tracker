@@ -13,9 +13,26 @@ export type ExportRow = {
   type: string;
   account: string;
   note: string | null;
+  currency: string;
+  /** In `currency`; null for EUR rows. */
+  original_cents: number | null;
+  fx_rate: number | null;
 };
 
-export const CSV_HEADERS = ["Datum", "Betrag", "Beschreibung", "Empfänger", "Kategorie", "Typ", "Konto", "Notiz"];
+// "Betrag" is always EUR; foreign-currency rows also carry the original amount and rate.
+export const CSV_HEADERS = [
+  "Datum",
+  "Betrag",
+  "Beschreibung",
+  "Empfänger",
+  "Kategorie",
+  "Typ",
+  "Konto",
+  "Notiz",
+  "Währung",
+  "Originalbetrag",
+  "Kurs",
+];
 
 /** Quote a text cell; neutralise spreadsheet formulas (CSV injection). */
 export function csvText(value: string | null | undefined): string {
@@ -42,6 +59,9 @@ export function toCsv(rows: readonly ExportRow[]): string {
         csvText(r.type),
         csvText(r.account),
         csvText(r.note),
+        r.currency,
+        r.original_cents === null ? "" : centsToInput(r.original_cents),
+        r.fx_rate === null ? "" : String(r.fx_rate).replace(".", ","),
       ].join(";"),
     );
   }

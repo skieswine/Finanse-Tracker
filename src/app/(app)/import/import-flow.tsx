@@ -15,6 +15,7 @@ import { pickParser } from "@/lib/import/registry";
 import { sortRules, type CategoryRule } from "@/lib/import/rules";
 import type { SourceFileType } from "@/lib/import/types";
 import { MAX_IMPORT_ROWS } from "@/lib/validation";
+import { BASE_CURRENCY, isCurrency, type Currency } from "@/lib/currency";
 import type { Account, Category, ImportBatch } from "@/lib/data";
 import { ReviewStep } from "./review-step";
 import { TRANSFER, buildReviewRows, reviewReducer, rowAmount } from "./review-state";
@@ -41,6 +42,9 @@ export function ImportFlow({ categories, accounts, rules, batches }: ImportFlowP
   const [accountId, setAccountId] = useState(accounts.length === 1 ? accounts[0].id : "");
   const [saving, startSaving] = useTransition();
   const sortedRules = useMemo(() => sortRules(rules), [rules]);
+  // Statement amounts are in the selected account's currency (EUR without an account).
+  const accountCurrency = accounts.find((a) => a.id === accountId)?.currency;
+  const currency: Currency = isCurrency(accountCurrency) ? accountCurrency : BASE_CURRENCY;
 
   async function handleFile(file: File) {
     const type = detectFileType(file);
@@ -67,7 +71,7 @@ export function ImportFlow({ categories, accounts, rules, batches }: ImportFlowP
       const dates = parsed.map((p) => p.date).sort();
       const duplicates = await checkDuplicates({ hashes, from: dates[0], to: dates[dates.length - 1] });
 
-      dispatch({ type: "reset", rows: buildReviewRows(parsed, hashes, duplicates, sortedRules) });
+      dispatch({ type: "reset", rows: buildReviewRows(parsed, hashes, duplicates, sortedRules, currency) });
       setPhase({ step: "review", fileName: file.name, fileType: type, parserId: parser.id });
     } catch (error) {
       const code = error instanceof ExtractError ? error.code : "failed";
@@ -84,6 +88,7 @@ export function ImportFlow({ categories, accounts, rules, batches }: ImportFlowP
         file_type: phase.fileType,
         parser_id: phase.parserId,
         account_id: accountId || null,
+        currency,
         rows: selected.map((r) => ({
           date: r.date,
           amount_cents: rowAmount(r) ?? 0,
@@ -112,6 +117,7 @@ export function ImportFlow({ categories, accounts, rules, batches }: ImportFlowP
             accountId={accountId}
             onAccountChange={setAccountId}
             onFile={handleFile}
+            currency={currency}
             error={phase.error}
           />
           <ImportHistory batches={batches} />
@@ -141,6 +147,7 @@ export function ImportFlow({ categories, accounts, rules, batches }: ImportFlowP
       return (
         <ReviewStep
           fileName={phase.fileName}
+          currency={currency}
           rows={rows}
           dispatch={dispatch}
           categories={categories}

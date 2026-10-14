@@ -10,6 +10,7 @@ import { deleteAccount, saveAccount } from "@/lib/actions/settings";
 import { useI18n } from "@/lib/i18n/client";
 import { fmt } from "@/lib/i18n/types";
 import { ACCOUNT_TYPES } from "@/lib/validation";
+import { CURRENCIES } from "@/lib/currency";
 import type { Account } from "@/lib/data";
 
 export function AccountDialog({ trigger, account }: { trigger: ReactElement; account?: Account }) {
@@ -27,6 +28,15 @@ export function AccountDialog({ trigger, account }: { trigger: ReactElement; acc
               {ACCOUNT_TYPES.map((type) => (
                 <NativeSelectOption key={type} value={type}>
                   {t.accounts.types[type]}
+                </NativeSelectOption>
+              ))}
+            </NativeSelect>
+          </Field>
+          <Field id="currency" label={t.accounts.currency} error={fe.currency}>
+            <NativeSelect id="currency" name="currency" defaultValue={account?.currency ?? "EUR"} className="w-full">
+              {CURRENCIES.map((c) => (
+                <NativeSelectOption key={c} value={c}>
+                  {c}
                 </NativeSelectOption>
               ))}
             </NativeSelect>

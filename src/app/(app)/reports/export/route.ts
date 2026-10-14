@@ -37,6 +37,9 @@ export async function GET(request: NextRequest) {
       type: t.txTypes[classify(tx, kinds)],
       account: tx.account_id ? (accountById.get(tx.account_id)?.name ?? "") : "",
       note: tx.note,
+      currency: tx.currency,
+      original_cents: tx.original_cents,
+      fx_rate: tx.fx_rate,
     })),
   );
 

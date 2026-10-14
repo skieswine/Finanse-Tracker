@@ -1,14 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CategoryIcon } from "@/components/category-icon";
 import { Field, FormError, SubmitButton, errorProps } from "@/components/forms/field";
 import { useFormAction } from "@/components/forms/use-form-action";
 import { Input } from "@/components/ui/input";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { Textarea } from "@/components/ui/textarea";
+import { previewRate } from "@/lib/actions/fx";
 import { saveTransaction } from "@/lib/actions/transactions";
+import { BASE_CURRENCY, CURRENCIES, formatRate, isCurrency, toEurCents, type Currency } from "@/lib/currency";
+import { formatEUR, parseAmountToCents } from "@/lib/money";
 import { useI18n } from "@/lib/i18n/client";
+import { fmt } from "@/lib/i18n/types";
 import { cn } from "@/lib/utils";
 import { categoryKindFor } from "@/lib/transactions";
 import { TX_TYPES, type TxType } from "@/lib/validation";
@@ -26,6 +30,9 @@ export type TransactionFormDefaults = {
   account_id: string;
   savings_goal_id: string;
   note: string;
+  currency: Currency;
+  /** Manual rate ("49,58"); empty = automatic. */
+  fx_rate: string;
 };
 
 type TransactionFormProps = {
@@ -40,6 +47,40 @@ export function TransactionForm({ defaults, categories, accounts, goals }: Trans
   const { state, onSubmit, pending } = useFormAction(saveTransaction);
   const [type, setType] = useState<TxType>(defaults.type);
   const [categoryId, setCategoryId] = useState(defaults.category_id);
+
+  const [amount, setAmount] = useState(defaults.amount);
+  const [date, setDate] = useState(defaults.date);
+  const [accountId, setAccountId] = useState(defaults.account_id);
+  const [currency, setCurrency] = useState<Currency>(defaults.currency);
+  const [currencyTouched, setCurrencyTouched] = useState(Boolean(defaults.id));
+  const [manualRate, setManualRate] = useState(defaults.fx_rate !== "");
+  const [rateInput, setRateInput] = useState(defaults.fx_rate);
+  // Fetched rate for "currency|date" (key tells whether it is still current).
+  const [fetched, setFetched] = useState<{ key: string; rate: number | null }>({ key: "", rate: null });
+
+  const rateKey = `${currency}|${date}`;
+  const foreign = currency !== BASE_CURRENCY;
+  useEffect(() => {
+    if (!foreign || manualRate || !date) return;
+    let cancelled = false;
+    previewRate(currency, date).then((rate) => {
+      if (!cancelled) setFetched({ key: rateKey, rate });
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [foreign, manualRate, currency, date, rateKey]);
+
+  const rate = manualRate ? Number(rateInput.replace(",", ".")) || null : fetched.key === rateKey ? fetched.rate : null;
+  const rateLoading = foreign && !manualRate && fetched.key !== rateKey;
+  const amountCents = parseAmountToCents(amount);
+
+  function changeAccount(id: string) {
+    setAccountId(id);
+    // New transactions follow the account's currency until the user picks one.
+    const accountCurrency = accounts.find((a) => a.id === id)?.currency;
+    if (!currencyTouched && isCurrency(accountCurrency)) setCurrency(accountCurrency);
+  }
 
   const kind = categoryKindFor(type);
   const visibleCategories = kind ? categories.filter((c) => c.kind === kind) : [];
@@ -86,18 +127,76 @@ export function TransactionForm({ defaults, categories, accounts, goals }: Trans
       </fieldset>
 
       <Field id="amount" label={t.transactions.amount} error={fe.amount}>
-        <Input
-          id="amount"
-          name="amount"
-          inputMode="decimal"
-          autoComplete="off"
-          placeholder="0,00"
-          defaultValue={defaults.amount}
-          autoFocus={!defaults.id}
-          className="h-12 text-2xl font-semibold tabular-nums"
-          {...errorProps("amount", fe.amount)}
-        />
+        <div className="grid grid-cols-[1fr_6.5rem] gap-2">
+          <Input
+            id="amount"
+            name="amount"
+            inputMode="decimal"
+            autoComplete="off"
+            placeholder="0,00"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            autoFocus={!defaults.id}
+            className="h-12 text-2xl font-semibold tabular-nums"
+            {...errorProps("amount", fe.amount)}
+          />
+          <NativeSelect
+            name="currency"
+            aria-label={t.transactions.currency}
+            value={currency}
+            onChange={(e) => {
+              setCurrency(e.target.value as Currency);
+              setCurrencyTouched(true);
+            }}
+            className="w-full [&_select]:h-12 [&_select]:text-base"
+          >
+            {CURRENCIES.map((c) => (
+              <NativeSelectOption key={c} value={c}>
+                {c}
+              </NativeSelectOption>
+            ))}
+          </NativeSelect>
+        </div>
       </Field>
+
+      {foreign && (
+        <div className="-mt-3 grid gap-2 text-sm">
+          <p className="text-muted-foreground tabular-nums" aria-live="polite">
+            {rateLoading
+              ? t.transactions.rateLoading
+              : rate
+                ? fmt(t.transactions.rateInfo, {
+                    eur: amountCents ? formatEUR(toEurCents(amountCents, rate)) : "—",
+                    rate: formatRate(rate, currency),
+                  })
+                : !manualRate && t.validation.rateUnavailable}
+          </p>
+          {manualRate && (
+            <Field id="fx_rate" label={t.transactions.rateLabel} error={fe.fx_rate}>
+              <Input
+                id="fx_rate"
+                name="fx_rate"
+                inputMode="decimal"
+                value={rateInput}
+                onChange={(e) => setRateInput(e.target.value)}
+                className="max-w-40 tabular-nums"
+                {...errorProps("fx_rate", fe.fx_rate)}
+              />
+            </Field>
+          )}
+          {!manualRate && fe.fx_rate && <p className="text-destructive">{t.validation[fe.fx_rate]}</p>}
+          <button
+            type="button"
+            onClick={() => {
+              setManualRate((m) => !m);
+              if (!manualRate && !rateInput && rate) setRateInput(String(rate).replace(".", ","));
+            }}
+            className="justify-self-start text-sm underline underline-offset-4 hover:text-foreground"
+          >
+            {manualRate ? t.transactions.rateAuto : t.transactions.rateManual}
+          </button>
+        </div>
+      )}
 
       {type === "transfer" && (
         <fieldset className="grid gap-2">
@@ -160,11 +259,25 @@ export function TransactionForm({ defaults, categories, accounts, goals }: Trans
 
       <div className="grid gap-5 sm:grid-cols-2">
         <Field id="date" label={t.transactions.date} error={fe.date}>
-          <Input id="date" name="date" type="date" defaultValue={defaults.date} required {...errorProps("date", fe.date)} />
+          <Input
+            id="date"
+            name="date"
+            type="date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+            required
+            {...errorProps("date", fe.date)}
+          />
         </Field>
 
         <Field id="account_id" label={t.transactions.account} optional error={fe.account_id}>
-          <NativeSelect id="account_id" name="account_id" defaultValue={defaults.account_id} className="w-full">
+          <NativeSelect
+            id="account_id"
+            name="account_id"
+            value={accountId}
+            onChange={(e) => changeAccount(e.target.value)}
+            className="w-full"
+          >
             <NativeSelectOption value="">{t.transactions.noAccount}</NativeSelectOption>
             {accounts.map((a) => (
               <NativeSelectOption key={a.id} value={a.id}>

@@ -23,12 +23,14 @@ export type Database = {
           user_id: string;
           name: string;
           type: Database["public"]["Enums"]["account_type"];
+          currency: string;
         };
         Insert: {
           id?: string;
           user_id?: string;
           name: string;
           type?: Database["public"]["Enums"]["account_type"];
+          currency?: string;
           created_at?: string;
         };
         Update: {
@@ -36,6 +38,7 @@ export type Database = {
           user_id?: string;
           name?: string;
           type?: Database["public"]["Enums"]["account_type"];
+          currency?: string;
           created_at?: string;
         };
         Relationships: [];
@@ -144,6 +147,9 @@ export type Database = {
           dedupe_hash: string | null;
           is_transfer: boolean;
           note: string | null;
+          currency: string;
+          original_amount: number | null;
+          fx_rate: number | null;
           updated_at: string;
         };
         Insert: {
@@ -161,6 +167,9 @@ export type Database = {
           dedupe_hash?: string | null;
           is_transfer?: boolean;
           note?: string | null;
+          currency?: string;
+          original_amount?: number | null;
+          fx_rate?: number | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -179,6 +188,9 @@ export type Database = {
           dedupe_hash?: string | null;
           is_transfer?: boolean;
           note?: string | null;
+          currency?: string;
+          original_amount?: number | null;
+          fx_rate?: number | null;
           created_at?: string;
           updated_at?: string;
         };

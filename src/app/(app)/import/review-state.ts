@@ -40,6 +40,7 @@ export function buildReviewRows(
   hashes: string[],
   duplicates: DuplicateInfo,
   sortedRules: CategoryRule[],
+  currency: string,
 ): ReviewRow[] {
   const existing = new Set(duplicates.existingHashes);
   const sameDayAmount = new Set(duplicates.sameDayAmountKeys);
@@ -47,7 +48,7 @@ export function buildReviewRows(
     const rule = matchRule(p, sortedRules);
     const duplicate = existing.has(hashes[i])
       ? "exact"
-      : sameDayAmount.has(`${p.date}|${p.amount_cents}`)
+      : sameDayAmount.has(`${p.date}|${currency}|${p.amount_cents}`)
         ? "possible"
         : null;
     return {

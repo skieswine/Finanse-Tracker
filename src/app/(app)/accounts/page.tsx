@@ -32,7 +32,9 @@ export default async function AccountsPage() {
                 </span>
                 <div className="min-w-0 flex-1">
                   <p className="truncate">{a.name}</p>
-                  <p className="text-sm text-muted-foreground">{t.accounts.types[a.type]}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {t.accounts.types[a.type]} · {a.currency}
+                  </p>
                 </div>
                 <AccountRowActions account={a} />
               </li>

@@ -9,6 +9,7 @@ import { fmt } from "@/lib/i18n/types";
 import { filtersToQuery } from "@/lib/transaction-filters";
 import { centsToInput } from "@/lib/money";
 import { deriveTxType } from "@/lib/transactions";
+import { BASE_CURRENCY, isCurrency } from "@/lib/currency";
 import { idSchema } from "@/lib/validation";
 import { TransactionForm } from "../../transaction-form";
 import { DeleteTransactionButton } from "./delete-button";
@@ -65,7 +66,8 @@ export default async function EditTransactionPage({
         defaults={{
           id: tx.id,
           type: deriveTxType(tx, category?.kind),
-          amount: centsToInput(Math.abs(tx.amount_cents)),
+          // Foreign-currency transactions are edited in their own currency.
+          amount: centsToInput(Math.abs(tx.original_cents ?? tx.amount_cents)),
           direction: tx.amount_cents > 0 ? "in" : "out",
           date: tx.date,
           description: tx.description,
@@ -74,6 +76,9 @@ export default async function EditTransactionPage({
           account_id: tx.account_id ?? "",
           savings_goal_id: tx.savings_goal_id ?? "",
           note: tx.note ?? "",
+          currency: isCurrency(tx.currency) ? tx.currency : BASE_CURRENCY,
+          // Keep the stored rate on edit, so re-saving never shifts the EUR amount.
+          fx_rate: tx.fx_rate ? String(tx.fx_rate).replace(".", ",") : "",
         }}
       />
     </>

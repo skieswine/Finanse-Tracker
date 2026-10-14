@@ -18,8 +18,11 @@ export type Goal = Omit<Tables<"savings_goals">, "target"> & {
   saved_cents: number;
 };
 
-export type Transaction = Omit<Tables<"transactions">, "amount"> & {
+export type Transaction = Omit<Tables<"transactions">, "amount" | "original_amount"> & {
+  /** EUR (base currency). */
   amount_cents: number;
+  /** In `currency`; null for EUR transactions. */
+  original_cents: number | null;
 };
 
 export type Budget = Omit<Tables<"budgets">, "limit_amount"> & {
@@ -28,8 +31,12 @@ export type Budget = Omit<Tables<"budgets">, "limit_amount"> & {
 };
 
 function toTransaction(row: Tables<"transactions">): Transaction {
-  const { amount, ...rest } = row;
-  return { ...rest, amount_cents: toCents(amount) };
+  const { amount, original_amount, ...rest } = row;
+  return {
+    ...rest,
+    amount_cents: toCents(amount),
+    original_cents: original_amount === null ? null : toCents(original_amount),
+  };
 }
 
 export async function getCategories(): Promise<Category[]> {

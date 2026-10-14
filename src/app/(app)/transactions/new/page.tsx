@@ -3,6 +3,7 @@ import { getAccounts, getCategories, getGoals } from "@/lib/data";
 import { todayISO } from "@/lib/dates";
 import { getI18n } from "@/lib/i18n/server";
 import { TX_TYPES, type TxType } from "@/lib/validation";
+import { BASE_CURRENCY, isCurrency } from "@/lib/currency";
 import { TransactionForm } from "../transaction-form";
 
 function isTxType(value: unknown): value is TxType {
@@ -22,6 +23,8 @@ export default async function NewTransactionPage({
 
   // ?type=savings&goal=<id> preselects a deposit (used by "Deposit" on goals).
   const type = isTxType(params.type) ? params.type : "expense";
+  // With a single account, preselect it (and its currency).
+  const account = accounts.length === 1 ? accounts[0] : undefined;
   const goalId =
     typeof params.goal === "string" && goals.some((g) => g.id === params.goal) ? params.goal : "";
 
@@ -40,10 +43,11 @@ export default async function NewTransactionPage({
           description: "",
           merchant: "",
           category_id: "",
-          // With a single account, preselect it.
-          account_id: accounts.length === 1 ? accounts[0].id : "",
+          account_id: account?.id ?? "",
           savings_goal_id: goalId,
           note: "",
+          currency: isCurrency(account?.currency) ? account.currency : BASE_CURRENCY,
+          fx_rate: "",
         }}
       />
     </>

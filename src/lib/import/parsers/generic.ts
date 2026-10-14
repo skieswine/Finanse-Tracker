@@ -55,7 +55,7 @@ const ROLE_KEYWORDS: [Role, string[]][] = [
 
 // Never treat these as transaction columns.
 const IGNORED_HEADER_RE =
-  /saldo|kontostand|iban|kontonummer|accountnumber|auftragskonto|bic|blz|waehrung|currency|mandat|glaeubigerid|ursprung|auslagen|ruecklastschrift|kategorie|category|status/;
+  /saldo|kontostand|iban|kontonummer|accountnumber|auftragskonto|bic|blz|waehrung|currency|mandat|glaeubigerid|ursprung|original|auslagen|ruecklastschrift|kategorie|category|status/;
 
 type Columns = Partial<Record<Exclude<Role, "description" | "merchant">, number>> & {
   description: number[];

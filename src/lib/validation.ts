@@ -2,6 +2,7 @@ import { z } from "zod";
 import { isISODate, isMonthKey } from "./dates";
 import { parseAmountToCents } from "./money";
 import type { Dictionary } from "./i18n/types";
+import { CURRENCIES } from "./currency";
 
 /** Error messages are dictionary keys, translated in the UI. */
 export type ValidationKey = keyof Dictionary["validation"];
@@ -54,6 +55,19 @@ const name = (max: number) =>
 export const TX_TYPES = ["expense", "income", "savings", "transfer"] as const;
 export type TxType = (typeof TX_TYPES)[number];
 
+/** "49,58" / "49.5794" → 49.58; "" → null (fetch the rate automatically). */
+const optionalRate = z.preprocess(
+  (v) => (typeof v === "string" && v.trim() === "" ? null : v),
+  z
+    .string()
+    .trim()
+    .regex(/^\d{1,7}([.,]\d{1,8})?$/, err("rateInvalid"))
+    .transform((v) => Number(v.replace(",", ".")))
+    .refine((v) => v > 0, err("rateInvalid"))
+    .nullable()
+    .optional(),
+).transform((v) => v ?? null);
+
 export const transactionFormSchema = z.object({
   type: z.enum(TX_TYPES, err("invalid")),
   amount: positiveCents,
@@ -65,6 +79,9 @@ export const transactionFormSchema = z.object({
   savings_goal_id: optionalId,
   direction: z.enum(["out", "in"]).default("out"),
   note: optionalText(1000),
+  currency: z.enum(CURRENCIES, err("invalid")).default("EUR"),
+  /** Optional manual rate (units per 1 EUR); empty = fetch automatically. */
+  fx_rate: optionalRate,
 });
 export type TransactionFormValues = z.infer<typeof transactionFormSchema>;
 
@@ -86,6 +103,7 @@ export const ACCOUNT_TYPES = ["checking", "savings", "cash", "credit"] as const;
 export const accountFormSchema = z.object({
   name: name(100),
   type: z.enum(ACCOUNT_TYPES, err("invalid")),
+  currency: z.enum(CURRENCIES, err("invalid")).default("EUR"),
 });
 
 // ---------- Savings goals ----------
@@ -141,6 +159,8 @@ export const importBatchSchema = z.object({
   file_type: z.enum(["csv", "pdf", "docx", "image"]),
   parser_id: z.string().min(1).max(50),
   account_id: z.uuid().nullable(),
+  /** Currency of the amounts in `rows` (the account's currency). */
+  currency: z.enum(CURRENCIES).default("EUR"),
   rows: z.array(importRowSchema).min(1).max(MAX_IMPORT_ROWS),
 });
 export type ImportBatchInput = z.infer<typeof importBatchSchema>;

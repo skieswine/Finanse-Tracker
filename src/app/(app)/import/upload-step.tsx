@@ -5,6 +5,7 @@ import { FileUp, ShieldCheck } from "lucide-react";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { Label } from "@/components/ui/label";
 import { useI18n } from "@/lib/i18n/client";
+import { fmt } from "@/lib/i18n/types";
 import { cn } from "@/lib/utils";
 import type { Account } from "@/lib/data";
 
@@ -14,11 +15,12 @@ type UploadStepProps = {
   onAccountChange: (id: string) => void;
   onFile: (file: File) => void;
   error?: string;
+  currency: string;
 };
 
 const ACCEPT = ".csv,.txt,.pdf,.docx,.png,.jpg,.jpeg,.webp,.bmp,image/*,text/csv,application/pdf";
 
-export function UploadStep({ accounts, accountId, onAccountChange, onFile, error }: UploadStepProps) {
+export function UploadStep({ accounts, accountId, onAccountChange, onFile, error, currency }: UploadStepProps) {
   const { t } = useI18n();
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
@@ -37,10 +39,13 @@ export function UploadStep({ accounts, accountId, onAccountChange, onFile, error
             <NativeSelectOption value="">{t.transactions.noAccount}</NativeSelectOption>
             {accounts.map((a) => (
               <NativeSelectOption key={a.id} value={a.id}>
-                {a.name}
+                {a.currency !== "EUR" ? `${a.name} · ${a.currency}` : a.name}
               </NativeSelectOption>
             ))}
           </NativeSelect>
+          {currency !== "EUR" && (
+            <p className="text-sm text-muted-foreground">{fmt(t.importer.currencyNote, { currency })}</p>
+          )}
         </div>
       )}
 

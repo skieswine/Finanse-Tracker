@@ -3,10 +3,9 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { redirect } from "next/navigation";
-import { fromCents } from "@/lib/money";
 import { categoryKindFor, signedCents } from "@/lib/transactions";
 import { idSchema, toFieldErrors, transactionFormSchema } from "@/lib/validation";
-import { authedClient, formValues, type ActionState } from "./shared";
+import { authedClient, formValues, toBaseAmount, type ActionState } from "./shared";
 
 export async function saveTransaction(
   _prev: ActionState,
@@ -38,9 +37,14 @@ export async function saveTransaction(
     categoryId = null;
   }
 
+  // Amount as entered (in v.currency) → EUR at the rate of the transaction date.
+  const original = signedCents(v.type, v.amount, v.direction);
+  const money = await toBaseAmount(original, v.currency, v.date, v.fx_rate);
+  if (!money) return { fieldErrors: { fx_rate: "rateUnavailable" } };
+
   const row = {
     date: v.date,
-    amount: fromCents(signedCents(v.type, v.amount, v.direction)),
+    ...money,
     description: v.description,
     merchant: v.merchant,
     category_id: categoryId,
