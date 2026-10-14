@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition, type Dispatch } from "react";
+import { AlertTriangle, CheckSquare, Square } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { createRule } from "@/lib/actions/import";
@@ -8,6 +9,7 @@ import { ruleMatches } from "@/lib/import/rules";
 import { useI18n } from "@/lib/i18n/client";
 import { fmt } from "@/lib/i18n/types";
 import { formatEUR } from "@/lib/money";
+import { cn } from "@/lib/utils";
 import type { Category } from "@/lib/data";
 import { ReviewRow } from "./review-row";
 import { TRANSFER, isFlagged, rowAmount, rulePatternFor, type ReviewAction, type ReviewRow as Row } from "./review-state";
@@ -56,6 +58,9 @@ export function ReviewStep({ fileName, rows, dispatch, categories, onConfirm, on
   }, [rows]);
 
   const allVisibleIncluded = visible.length > 0 && visible.every((r) => r.include);
+  const noneVisibleIncluded = visible.every((r) => !r.include);
+  const setIncluded = (include: boolean) =>
+    dispatch({ type: "includeAll", include, keys: visible.map((r) => r.key) });
 
   const onCreateRule = useCallback(
     (key: string) => {
@@ -86,34 +91,36 @@ export function ReviewStep({ fileName, rows, dispatch, categories, onConfirm, on
 
   return (
     <div className="grid gap-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="text-sm text-muted-foreground">
-          {fmt(t.importer.found, { count: rows.length, file: fileName })}
-        </p>
-        <div className="flex flex-wrap items-center gap-4 text-sm">
-          <label className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              className="size-4 accent-primary"
-              checked={allVisibleIncluded}
-              onChange={(e) =>
-                dispatch({ type: "includeAll", include: e.target.checked, keys: visible.map((r) => r.key) })
-              }
-            />
-            {t.importer.selectAll}
-          </label>
-          {flaggedCount > 0 && (
-            <label className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                className="size-4 accent-primary"
-                checked={onlyFlagged}
-                onChange={(e) => setOnlyFlagged(e.target.checked)}
-              />
-              {fmt(t.importer.onlyFlagged, { count: flaggedCount })}
-            </label>
-          )}
-        </div>
+      <p className="text-sm text-muted-foreground">{fmt(t.importer.found, { count: rows.length, file: fileName })}</p>
+
+      {/* Selection toolbar: explicit buttons instead of a lone checkbox. */}
+      <div className="flex flex-wrap items-center gap-2">
+        <Button
+          variant="outline"
+          onClick={() => setIncluded(true)}
+          disabled={allVisibleIncluded}
+        >
+          <CheckSquare />
+          {t.importer.selectAll} ({visible.length})
+        </Button>
+        <Button variant="outline" onClick={() => setIncluded(false)} disabled={noneVisibleIncluded}>
+          <Square />
+          {t.transactions.deselectAll}
+        </Button>
+        {flaggedCount > 0 && (
+          <Button
+            variant={onlyFlagged ? "secondary" : "ghost"}
+            aria-pressed={onlyFlagged}
+            onClick={() => setOnlyFlagged((v) => !v)}
+            className={cn(onlyFlagged && "ring-1 ring-amber-500")}
+          >
+            <AlertTriangle className="text-amber-600 dark:text-amber-400" />
+            {fmt(t.importer.onlyFlagged, { count: flaggedCount })}
+          </Button>
+        )}
+        <span className="ml-auto text-sm font-medium tabular-nums">
+          {fmt(t.importer.selected, { selected: summary.selected, total: rows.length })}
+        </span>
       </div>
 
       {ruleMessage && (
@@ -123,8 +130,18 @@ export function ReviewStep({ fileName, rows, dispatch, categories, onConfirm, on
       )}
 
       <Card className="gap-0 py-0">
-        <div className="hidden grid-cols-[auto_9.5rem_8rem_1fr_13rem] gap-3 border-b px-3 py-2 text-xs font-medium text-muted-foreground md:grid">
-          <span className="w-4" />
+        <div className="hidden grid-cols-[auto_9.5rem_8rem_1fr_13rem] items-center gap-3 border-b border-l-4 border-l-transparent px-3 py-2 text-xs font-medium text-muted-foreground md:grid">
+          <input
+            type="checkbox"
+            aria-label={t.importer.selectAll}
+            title={t.importer.selectAll}
+            className="size-5 cursor-pointer accent-primary"
+            checked={allVisibleIncluded}
+            ref={(el) => {
+              if (el) el.indeterminate = !allVisibleIncluded && !noneVisibleIncluded;
+            }}
+            onChange={(e) => setIncluded(e.target.checked)}
+          />
           <span>{t.importer.date}</span>
           <span className="text-right">{t.importer.amount}</span>
           <span>{t.importer.description}</span>

@@ -31,8 +31,10 @@ export const ReviewRow = memo(function ReviewRow({ row, categories, dispatch, on
   return (
     <li
       className={cn(
+        // items-start: all inputs share the top line; captions (payee, "by rule")
+        // hang below without pushing neighbours off-centre.
         "grid grid-cols-[auto_1fr_8rem] items-start gap-x-3 gap-y-2 border-l-4 border-transparent p-3",
-        "md:grid-cols-[auto_9.5rem_8rem_1fr_13rem] md:items-center",
+        "md:grid-cols-[auto_9.5rem_8rem_1fr_13rem]",
         (low || cents === null) && "border-amber-500 bg-amber-500/5",
         row.duplicate === "exact" && "border-muted-foreground/40",
         !row.include && "opacity-60",
@@ -43,7 +45,7 @@ export const ReviewRow = memo(function ReviewRow({ row, categories, dispatch, on
         checked={row.include}
         onChange={(e) => update({ include: e.target.checked })}
         aria-label={t.importer.include}
-        className="mt-2.5 size-4 accent-primary md:mt-0"
+        className="mt-1.5 size-5 cursor-pointer accent-primary"
       />
 
       <Input
@@ -73,6 +75,7 @@ export const ReviewRow = memo(function ReviewRow({ row, categories, dispatch, on
           id={id("description")}
           aria-label={t.importer.description}
           value={row.description}
+          title={row.description}
           onChange={(e) => update({ description: e.target.value })}
         />
         {row.merchant && <p className="truncate px-1 text-xs text-muted-foreground">{row.merchant}</p>}
