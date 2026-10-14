@@ -1,5 +1,5 @@
 import { PageHeader } from "@/components/page-header";
-import { getAccounts, getCategories, getGoals } from "@/lib/data";
+import { getAccounts, getCategories, getDebts, getGoals } from "@/lib/data";
 import { todayISO } from "@/lib/dates";
 import { getI18n } from "@/lib/i18n/server";
 import { TX_TYPES, type TxType } from "@/lib/validation";
@@ -13,11 +13,12 @@ function isTxType(value: unknown): value is TxType {
 export default async function NewTransactionPage({
   searchParams,
 }: PageProps<"/transactions/new">) {
-  const [{ t }, categories, accounts, goals, params] = await Promise.all([
+  const [{ t }, categories, accounts, goals, debts, params] = await Promise.all([
     getI18n(),
     getCategories(),
     getAccounts(),
     getGoals(),
+    getDebts(),
     searchParams,
   ]);
 
@@ -25,6 +26,10 @@ export default async function NewTransactionPage({
   const type = isTxType(params.type) ? params.type : "expense";
   // With a single account, preselect it (and its currency).
   const account = accounts.length === 1 ? accounts[0] : undefined;
+  // ?debt=<id> preselects a repayment (used by "Make a payment" on debts),
+  // with the default debt category when it exists.
+  const debtId = typeof params.debt === "string" && debts.some((d) => d.id === params.debt) ? params.debt : "";
+  const debtCategory = debtId ? categories.find((c) => c.kind === "expense" && c.name === "Kredite & Schulden") : undefined;
   const goalId =
     typeof params.goal === "string" && goals.some((g) => g.id === params.goal) ? params.goal : "";
 
@@ -35,6 +40,7 @@ export default async function NewTransactionPage({
         categories={categories}
         accounts={accounts}
         goals={goals}
+        debts={debts}
         defaults={{
           type,
           amount: "",
@@ -42,9 +48,10 @@ export default async function NewTransactionPage({
           date: todayISO(),
           description: "",
           merchant: "",
-          category_id: "",
+          category_id: debtCategory?.id ?? "",
           account_id: account?.id ?? "",
           savings_goal_id: goalId,
+          debt_id: debtId,
           note: "",
           currency: isCurrency(account?.currency) ? account.currency : BASE_CURRENCY,
           fx_rate: "",

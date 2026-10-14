@@ -7,6 +7,7 @@ import {
   accountFormSchema,
   budgetFormSchema,
   categoryFormSchema,
+  debtFormSchema,
   goalFormSchema,
   idSchema,
   toFieldErrors,
@@ -21,7 +22,7 @@ import {
 // CRUD for categories, accounts, savings goals and budgets.
 // Forms live in dialogs, so save actions return { ok: true } instead of redirecting.
 
-type Table = "categories" | "accounts" | "savings_goals" | "budgets";
+type Table = "categories" | "accounts" | "savings_goals" | "budgets" | "debts";
 
 function parseId(values: Record<string, string>) {
   if (!values.id) return { id: null };
@@ -150,4 +151,36 @@ export async function saveBudget(_prev: ActionState, formData: FormData): Promis
 
 export async function deleteBudget(id: string) {
   return remove("budgets", id);
+}
+
+// ---------- Debts ----------
+
+export async function saveDebt(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const values = formValues(formData);
+  const parsed = debtFormSchema.safeParse(values);
+  if (!parsed.success) return { fieldErrors: toFieldErrors(parsed.error) };
+  const ref = parseId(values);
+  if ("invalid" in ref) return { error: "invalid" };
+
+  const d = parsed.data;
+  const row = {
+    name: d.name,
+    counterparty: d.counterparty,
+    amount: fromCents(d.amount),
+    monthly_payment: d.monthly_payment === null ? null : fromCents(d.monthly_payment),
+    due_date: d.due_date,
+    note: d.note,
+  };
+
+  const supabase = await authedClient();
+  const { error } = ref.id
+    ? await supabase.from("debts").update(row).eq("id", ref.id)
+    : await supabase.from("debts").insert(row);
+
+  if (error) return { error: "saveFailed" };
+  return done();
+}
+
+export async function deleteDebt(id: string) {
+  return remove("debts", id);
 }

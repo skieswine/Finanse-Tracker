@@ -13,6 +13,7 @@ import {
   defaultMonth,
   getBudgets,
   getCategories,
+  getDebts,
   getGoals,
   getInsightRowsBetween,
   hasAnyTransactions,
@@ -35,10 +36,11 @@ export default async function DashboardPage({ searchParams }: PageProps<"/">) {
   const month = isMonthKey(params.month) ? params.month : await defaultMonth(currentMonth());
   const windowStart = monthStart(addMonths(month, -5));
 
-  const [{ t, intlLocale }, categories, goals, budgets, anyTransactions] = await Promise.all([
+  const [{ t, intlLocale }, categories, goals, debts, budgets, anyTransactions] = await Promise.all([
     getI18n(),
     getCategories(),
     getGoals(),
+    getDebts(),
     getBudgets(month),
     hasAnyTransactions(),
   ]);
@@ -243,6 +245,39 @@ export default async function DashboardPage({ searchParams }: PageProps<"/">) {
               )}
             </CardContent>
           </Card>
+
+          {debts.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle>{t.dashboard.debts}</CardTitle>
+                <CardAction>
+                  <Link href="/debts" className="text-sm text-muted-foreground hover:text-foreground">
+                    {t.dashboard.all}
+                  </Link>
+                </CardAction>
+              </CardHeader>
+              <CardContent>
+                <ul className="grid gap-3">
+                  {debts.map((d) => (
+                    <li key={d.id} className="grid gap-1.5">
+                      <div className="flex items-baseline justify-between gap-2 text-sm">
+                        <span className="truncate">{d.name}</span>
+                        <span className="tabular-nums text-muted-foreground">
+                          {d.paid_cents >= d.amount_cents
+                            ? t.debts.paidOff
+                            : fmt(t.debts.progress, {
+                                paid: formatEUR(d.paid_cents, { whole: true }),
+                                total: formatEUR(d.amount_cents, { whole: true }),
+                              })}
+                        </span>
+                      </div>
+                      <ProgressBar value={Math.min(d.paid_cents / d.amount_cents, 1)} label={d.name} />
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          )}
         </div>
       </div>
     </>

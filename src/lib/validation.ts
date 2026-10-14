@@ -77,6 +77,7 @@ export const transactionFormSchema = z.object({
   category_id: optionalId,
   account_id: optionalId,
   savings_goal_id: optionalId,
+  debt_id: optionalId,
   direction: z.enum(["out", "in"]).default("out"),
   note: optionalText(1000),
   currency: z.enum(CURRENCIES, err("invalid")).default("EUR"),
@@ -107,6 +108,20 @@ export const accountFormSchema = z.object({
 });
 
 // ---------- Savings goals ----------
+
+// ---------- Debts ----------
+
+export const debtFormSchema = z.object({
+  name: name(100),
+  counterparty: optionalText(100),
+  amount: positiveCents,
+  monthly_payment: z.preprocess(
+    (v) => (typeof v === "string" && v.trim() === "" ? null : v),
+    positiveCents.nullable(),
+  ),
+  due_date: z.preprocess((v) => (v === "" || v == null ? null : v), isoDate.nullable()),
+  note: optionalText(1000),
+});
 
 export const goalFormSchema = z.object({
   name: name(100),

@@ -50,6 +50,7 @@ export async function saveTransaction(
     category_id: categoryId,
     account_id: v.account_id,
     savings_goal_id: v.type === "savings" ? v.savings_goal_id : null,
+    debt_id: v.type === "expense" ? v.debt_id : null,
     is_transfer: v.type === "transfer",
     note: v.note,
   };

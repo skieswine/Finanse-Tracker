@@ -1,6 +1,7 @@
 import {
   ArrowLeftRight,
   FileBarChart,
+  HandCoins,
   LayoutDashboard,
   Lightbulb,
   Landmark,
@@ -40,7 +41,7 @@ export const bottomNavItems: NavItem[] = [
     href: "/more",
     labelKey: "more",
     icon: MoreHorizontal,
-    alsoActiveOn: ["/reports", "/categories", "/accounts", "/goals", "/budgets"],
+    alsoActiveOn: ["/reports", "/categories", "/accounts", "/goals", "/debts", "/budgets"],
   },
 ];
 
@@ -54,5 +55,6 @@ export const settingsItems: NavItem[] = [
   { href: "/categories", labelKey: "categories", icon: Tags },
   { href: "/accounts", labelKey: "accounts", icon: Landmark },
   { href: "/goals", labelKey: "goals", icon: PiggyBank },
+  { href: "/debts", labelKey: "debts", icon: HandCoins },
   { href: "/budgets", labelKey: "budgets", icon: Target },
 ];

@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { Search, Tag } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { PageHeader } from "@/components/page-header";
-import { getAccounts, getCategories, getGoals, getTransaction } from "@/lib/data";
+import { getAccounts, getCategories, getDebts, getGoals, getTransaction } from "@/lib/data";
 import { getI18n } from "@/lib/i18n/server";
 import { fmt } from "@/lib/i18n/types";
 import { filtersToQuery } from "@/lib/transaction-filters";
@@ -20,12 +20,13 @@ export default async function EditTransactionPage({
   const { id } = await params;
   if (!idSchema.safeParse(id).success) notFound();
 
-  const [{ t }, tx, categories, accounts, goals] = await Promise.all([
+  const [{ t }, tx, categories, accounts, goals, debts] = await Promise.all([
     getI18n(),
     getTransaction(id),
     getCategories(),
     getAccounts(),
     getGoals(),
+    getDebts(),
   ]);
   if (!tx) notFound();
 
@@ -63,6 +64,7 @@ export default async function EditTransactionPage({
         categories={categories}
         accounts={accounts}
         goals={goals}
+        debts={debts}
         defaults={{
           id: tx.id,
           type: deriveTxType(tx, category?.kind),
@@ -75,6 +77,7 @@ export default async function EditTransactionPage({
           category_id: tx.category_id ?? "",
           account_id: tx.account_id ?? "",
           savings_goal_id: tx.savings_goal_id ?? "",
+          debt_id: tx.debt_id ?? "",
           note: tx.note ?? "",
           currency: isCurrency(tx.currency) ? tx.currency : BASE_CURRENCY,
           // Keep the stored rate on edit, so re-saving never shifts the EUR amount.

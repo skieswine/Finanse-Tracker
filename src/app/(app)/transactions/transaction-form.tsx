@@ -16,7 +16,7 @@ import { fmt } from "@/lib/i18n/types";
 import { cn } from "@/lib/utils";
 import { categoryKindFor } from "@/lib/transactions";
 import { TX_TYPES, type TxType } from "@/lib/validation";
-import type { Account, Category, Goal } from "@/lib/data";
+import type { Account, Category, Debt, Goal } from "@/lib/data";
 
 export type TransactionFormDefaults = {
   id?: string;
@@ -29,6 +29,7 @@ export type TransactionFormDefaults = {
   category_id: string;
   account_id: string;
   savings_goal_id: string;
+  debt_id: string;
   note: string;
   currency: Currency;
   /** Manual rate ("49,58"); empty = automatic. */
@@ -40,9 +41,10 @@ type TransactionFormProps = {
   categories: Category[];
   accounts: Account[];
   goals: Goal[];
+  debts: Debt[];
 };
 
-export function TransactionForm({ defaults, categories, accounts, goals }: TransactionFormProps) {
+export function TransactionForm({ defaults, categories, accounts, goals, debts }: TransactionFormProps) {
   const { t } = useI18n();
   const { state, onSubmit, pending } = useFormAction(saveTransaction);
   const [type, setType] = useState<TxType>(defaults.type);
@@ -251,6 +253,19 @@ export function TransactionForm({ defaults, categories, accounts, goals }: Trans
             {goals.map((g) => (
               <NativeSelectOption key={g.id} value={g.id}>
                 {g.name}
+              </NativeSelectOption>
+            ))}
+          </NativeSelect>
+        </Field>
+      )}
+
+      {type === "expense" && debts.length > 0 && (
+        <Field id="debt_id" label={t.transactions.debt} optional error={fe.debt_id}>
+          <NativeSelect id="debt_id" name="debt_id" defaultValue={defaults.debt_id} className="w-full">
+            <NativeSelectOption value="">{t.transactions.noDebt}</NativeSelectOption>
+            {debts.map((d) => (
+              <NativeSelectOption key={d.id} value={d.id}>
+                {d.counterparty ? `${d.name} · ${d.counterparty}` : d.name}
               </NativeSelectOption>
             ))}
           </NativeSelect>

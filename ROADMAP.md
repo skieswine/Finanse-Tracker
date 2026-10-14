@@ -98,6 +98,13 @@
 - [x] Огляд: цілі євро; «Усі» праворуч (CardAction); легенда донату не обрізається; «без категорії» — окрема підказка, а не «нова категорія»
 - [x] Тести: **63** ✅
 
+#### Борги та кредити (запит користувача, 2026-10-15)
+- [x] Міграція `20261015000005_debts.sql`: таблиця `debts` (RLS), `transactions.debt_id`; категорія «Kredite & Schulden» + правила (tilgung, darlehen, kreditrate, ratenkredit, ratenzahlung, kreditkartenabrechnung) для нових і наявних користувачів
+- [x] `/debts`: картки з прогресом «Сплачено X з Y», залишок, щомісячний платіж, термін, останній платіж; «Внести платіж» → нова витрата з вибраним боргом і категорією
+- [x] Форма транзакції: поле «Погашення боргу» (лише для витрат); Огляд: картка «Борги», якщо вони є; навігація: «Налаштування → Борги»
+- Рішення (Claude, можна змінити): лише «я винен»; платежі = витрати (Залишок показує реальний рух грошей); сума боргу в EUR
+- Можливо згодом: «мені винні»; авто-прив'язка імпортованих платежів до боргу за шаблоном
+
 ## ⏭️ Наступне (домовлено на 2026-10-16)
 - [ ] **Вхід через Google** — через Supabase Auth (Google provider), **не** Firebase/Firestore (той вимагав би переписати бекенд).
   1. Користувач: Google Cloud Console → OAuth consent screen + OAuth Client ID (Web); Authorized redirect URI = `https://cqhlezmpsdejefrnbbkt.supabase.co/auth/v1/callback`; ключі → Supabase → Authentication → Providers → Google; Supabase → URL Configuration: Site URL `https://finanse-tracker.vercel.app`, Redirect URLs + `http://localhost:3000/**`.

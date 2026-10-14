@@ -150,6 +150,7 @@ export type Database = {
           currency: string;
           original_amount: number | null;
           fx_rate: number | null;
+          debt_id: string | null;
           updated_at: string;
         };
         Insert: {
@@ -170,6 +171,7 @@ export type Database = {
           currency?: string;
           original_amount?: number | null;
           fx_rate?: number | null;
+          debt_id?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -191,6 +193,7 @@ export type Database = {
           currency?: string;
           original_amount?: number | null;
           fx_rate?: number | null;
+          debt_id?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -224,6 +227,42 @@ export type Database = {
             referencedColumns: ["id"];
           },
         ];
+      };
+      debts: {
+        Row: {
+          id: string;
+          user_id: string;
+          name: string;
+          counterparty: string | null;
+          amount: number;
+          monthly_payment: number | null;
+          due_date: string | null;
+          note: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id?: string;
+          name: string;
+          counterparty?: string | null;
+          amount: number;
+          monthly_payment?: number | null;
+          due_date?: string | null;
+          note?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          name?: string;
+          counterparty?: string | null;
+          amount?: number;
+          monthly_payment?: number | null;
+          due_date?: string | null;
+          note?: string | null;
+          created_at?: string;
+        };
+        Relationships: [];
       };
       category_rules: {
         Row: {

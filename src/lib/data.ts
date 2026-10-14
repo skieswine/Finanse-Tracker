@@ -346,3 +346,39 @@ export async function getInsightRowsBetween(from: string, to: string): Promise<I
     if (data.length < FETCH_CHUNK) return out;
   }
 }
+
+export type Debt = Omit<Tables<"debts">, "amount" | "monthly_payment"> & {
+  amount_cents: number;
+  monthly_cents: number | null;
+  /** Sum of linked repayments (positive, EUR). */
+  paid_cents: number;
+  last_payment: string | null;
+};
+
+export async function getDebts(): Promise<Debt[]> {
+  const supabase = await createClient();
+  const [debts, payments] = await Promise.all([
+    supabase.from("debts").select("*").order("created_at"),
+    supabase.from("transactions").select("debt_id, amount, date").not("debt_id", "is", null),
+  ]);
+  if (debts.error) throw debts.error;
+  if (payments.error) throw payments.error;
+
+  // Repayments are outflows (negative), so paid = −sum.
+  const paid = new Map<string, { cents: number; last: string }>();
+  for (const p of payments.data) {
+    if (!p.debt_id) continue;
+    const entry = paid.get(p.debt_id) ?? { cents: 0, last: "" };
+    entry.cents -= toCents(p.amount);
+    if (p.date > entry.last) entry.last = p.date;
+    paid.set(p.debt_id, entry);
+  }
+
+  return debts.data.map(({ amount, monthly_payment, ...d }) => ({
+    ...d,
+    amount_cents: toCents(amount),
+    monthly_cents: monthly_payment === null ? null : toCents(monthly_payment),
+    paid_cents: Math.max(0, paid.get(d.id)?.cents ?? 0),
+    last_payment: paid.get(d.id)?.last || null,
+  }));
+}
