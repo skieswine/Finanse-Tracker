@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="uk">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Offline</title>
+    <style>
+      :root { color-scheme: light dark; --bg: #ffffff; --fg: #171717; --muted: #737373; }
+      @media (prefers-color-scheme: dark) { :root { --bg: #0a0a0a; --fg: #ededed; --muted: #a3a3a3; } }
+      body {
+        margin: 0; min-height: 100dvh; display: grid; place-items: center; padding: 16px;
+        background: var(--bg); color: var(--fg);
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; text-align: center;
+      }
+      img { width: 64px; height: 64px; border-radius: 14px; }
+      h1 { font-size: 1.25rem; margin: 16px 0 8px; }
+      p { color: var(--muted); margin: 4px 0; }
+      button { margin-top: 20px; padding: 10px 20px; border-radius: 8px; border: 1px solid var(--muted);
+        background: transparent; color: var(--fg); font: inherit; cursor: pointer; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <img src="/icons/192.png" alt="" />
+      <h1>Немає з'єднання · No connection</h1>
+      <p>Фінанси потребують інтернету, щоб показати ваші дані.</p>
+      <p lang="de">Für deine Finanzdaten ist eine Internetverbindung nötig.</p>
+      <p lang="en">Your finances need an internet connection to load.</p>
+      <button type="button" onclick="location.reload()">↻</button>
+    </main>
+  </body>
+</html>

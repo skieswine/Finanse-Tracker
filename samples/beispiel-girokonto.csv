@@ -1,0 +1,13 @@
+Umsatzanzeige;Datei erstellt am: 14.10.2026 10:00
+IBAN;DE12 3456 7890 1234 5678 90
+Kontoname;Girokonto
+
+Buchung;Valuta;Auftraggeber/Empfänger;Buchungstext;Verwendungszweck;Saldo;Währung;Betrag;Währung
+01.10.2026;01.10.2026;Arbeitgeber GmbH;Gehalt/Rente;Gehalt Oktober 2026;3.150,00;EUR;2.850,00;EUR
+02.10.2026;02.10.2026;Hausverwaltung Müller;Dauerauftrag;Miete Oktober;2.200,00;EUR;-950,00;EUR
+03.10.2026;03.10.2026;REWE Markt GmbH;Lastschrift;REWE SAGT DANKE 4711;2.176,55;EUR;-23,45;EUR
+05.10.2026;05.10.2026;Netflix International B.V.;Lastschrift;Netflix Abo;2.163,56;EUR;-12,99;EUR
+07.10.2026;07.10.2026;Deutsche Bahn;Lastschrift;DB Fahrkarte Düsseldorf-Köln;2.139,66;EUR;-23,90;EUR
+09.10.2026;09.10.2026;REWE Markt GmbH;Lastschrift;REWE SAGT DANKE 4712;2.098,26;EUR;-41,40;EUR
+10.10.2026;10.10.2026;Eigenes Sparkonto;Überweisung;Sparen Oktober;1.898,26;EUR;-200,00;EUR
+12.10.2026;12.10.2026;Pizzeria Bella Italia;Kartenzahlung;girocard Pizzeria;1.870,76;EUR;-27,50;EUR
