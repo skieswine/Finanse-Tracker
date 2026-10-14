@@ -10,9 +10,11 @@ type StatCardProps = {
   hint?: string;
   /** Show a +/− sign and red when negative (for net). */
   signed?: boolean;
+  /** Round to whole euros (overview screens). */
+  whole?: boolean;
 };
 
-export function StatCard({ label, cents, icon: Icon, hint, signed }: StatCardProps) {
+export function StatCard({ label, cents, icon: Icon, hint, signed, whole }: StatCardProps) {
   return (
     <Card className="gap-1 px-4 py-4" title={hint}>
       <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
@@ -25,7 +27,7 @@ export function StatCard({ label, cents, icon: Icon, hint, signed }: StatCardPro
           signed && cents < 0 && "text-destructive",
         )}
       >
-        {formatEUR(cents, { signed })}
+        {formatEUR(cents, { signed, whole })}
       </p>
       {hint && <p className="hidden text-xs text-muted-foreground sm:block">{hint}</p>}
     </Card>

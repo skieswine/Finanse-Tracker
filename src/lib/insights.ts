@@ -46,6 +46,8 @@ export function topCategoryIncreases(
         pct: prev > 0 ? Math.round((diff / prev) * 100) : null,
       };
     })
+    // Uncategorised spending is not a category; it gets its own hint instead.
+    .filter((r) => r.category_id !== null)
     .filter((r) => r.diff >= MIN_INCREASE_CENTS && (r.pct === null || r.pct >= MIN_INCREASE_PCT))
     .sort((a, b) => b.diff - a.diff)
     .slice(0, limit);
@@ -177,4 +179,14 @@ export function budgetWarnings(
     .filter((b) => b.ratio >= 0.9)
     .map((b) => ({ ...b, status: b.ratio > 1 ? ("over" as const) : ("near" as const) }))
     .sort((a, b) => b.ratio - a.ratio);
+}
+
+/** Spending without a category in the month (positive cents). */
+export function uncategorizedSpending(
+  txs: readonly InsightTx[],
+  kinds: ReadonlyMap<string, CategoryKind>,
+  month: string,
+): number {
+  const row = expensesByCategory(txs.filter((t) => t.date.startsWith(month)), kinds).find((r) => r.category_id === null);
+  return row?.cents ?? 0;
 }

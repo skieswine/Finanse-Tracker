@@ -59,7 +59,7 @@ export function TrendChart({ data }: { data: TrendPoint[] }) {
               cursor={{ fill: "var(--muted)", opacity: 0.5 }}
               labelFormatter={(label) => monthLabel(String(label))}
               formatter={(value, name) => [
-                formatEUR(Number(value)),
+                formatEUR(Number(value), { whole: true }),
                 name === "income" ? t.dashboard.income : t.dashboard.expenses,
               ]}
               contentStyle={{

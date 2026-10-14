@@ -8,7 +8,7 @@ import { InsightList } from "@/components/insight-list";
 import { MonthSwitcher } from "@/components/month-switcher";
 import { ProgressBar } from "@/components/progress-bar";
 import { buttonVariants } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   defaultMonth,
   getBudgets,
@@ -114,19 +114,21 @@ export default async function DashboardPage({ searchParams }: PageProps<"/">) {
 
       <div className="grid gap-4">
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-          <StatCard label={t.dashboard.income} cents={sums.income} icon={ArrowDownLeft} />
-          <StatCard label={t.dashboard.expenses} cents={sums.expenses} icon={ArrowUpRight} />
-          <StatCard label={t.dashboard.savings} cents={sums.savings} icon={PiggyBank} />
-          <StatCard label={t.dashboard.net} cents={sums.net} icon={Scale} hint={t.dashboard.netHint} signed />
+          <StatCard label={t.dashboard.income} cents={sums.income} icon={ArrowDownLeft} whole />
+          <StatCard label={t.dashboard.expenses} cents={sums.expenses} icon={ArrowUpRight} whole />
+          <StatCard label={t.dashboard.savings} cents={sums.savings} icon={PiggyBank} whole />
+          <StatCard label={t.dashboard.net} cents={sums.net} icon={Scale} hint={t.dashboard.netHint} signed whole />
         </div>
 
         {preview.length > 0 && (
           <Card>
-            <CardHeader className="flex-row items-center justify-between">
+            <CardHeader>
               <CardTitle>{t.insights.preview}</CardTitle>
+              <CardAction>
               <Link href={`/insights?month=${month}`} className="text-sm text-muted-foreground hover:text-foreground">
                 {t.insights.seeAll}
               </Link>
+              </CardAction>
             </CardHeader>
             <CardContent>
               <InsightList items={preview} />
@@ -160,11 +162,13 @@ export default async function DashboardPage({ searchParams }: PageProps<"/">) {
 
         <div className="grid gap-4 lg:grid-cols-2">
           <Card>
-            <CardHeader className="flex-row items-center justify-between">
+            <CardHeader>
               <CardTitle>{t.dashboard.budgets}</CardTitle>
+              <CardAction>
               <Link href={`/budgets?month=${month}`} className="text-sm text-muted-foreground hover:text-foreground">
                 {t.dashboard.all}
               </Link>
+              </CardAction>
             </CardHeader>
             <CardContent>
               {budgets.length === 0 ? (
@@ -186,8 +190,8 @@ export default async function DashboardPage({ searchParams }: PageProps<"/">) {
                           <span className="truncate">{name}</span>
                           <span className={cn("tabular-nums", over ? "text-destructive" : "text-muted-foreground")}>
                             {fmt(t.budgets.progress, {
-                              spent: formatEUR(b.spent_cents),
-                              limit: formatEUR(b.limit_cents),
+                              spent: formatEUR(b.spent_cents, { whole: true }),
+                              limit: formatEUR(b.limit_cents, { whole: true }),
                             })}
                           </span>
                         </div>
@@ -201,11 +205,13 @@ export default async function DashboardPage({ searchParams }: PageProps<"/">) {
           </Card>
 
           <Card>
-            <CardHeader className="flex-row items-center justify-between">
+            <CardHeader>
               <CardTitle>{t.dashboard.goals}</CardTitle>
+              <CardAction>
               <Link href="/goals" className="text-sm text-muted-foreground hover:text-foreground">
                 {t.dashboard.all}
               </Link>
+              </CardAction>
             </CardHeader>
             <CardContent>
               {goals.length === 0 ? (
@@ -225,8 +231,8 @@ export default async function DashboardPage({ searchParams }: PageProps<"/">) {
                           {g.saved_cents >= g.target_cents
                             ? t.goals.reached
                             : fmt(t.goals.progress, {
-                                saved: formatEUR(g.saved_cents),
-                                target: formatEUR(g.target_cents),
+                                saved: formatEUR(g.saved_cents, { whole: true }),
+                                target: formatEUR(g.target_cents, { whole: true }),
                               })}
                         </span>
                       </div>

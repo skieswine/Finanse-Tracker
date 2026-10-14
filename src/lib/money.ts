@@ -27,9 +27,32 @@ const eurSignedFormatter = new Intl.NumberFormat("de-DE", {
   signDisplay: "exceptZero",
 });
 
-/** 123456 → "1.234,56 €" (always de-DE, whatever the UI language). */
-export function formatEUR(cents: number, { signed = false } = {}): string {
-  return (signed ? eurSignedFormatter : eurFormatter).format(cents / 100);
+const eurWholeFormatter = new Intl.NumberFormat("de-DE", {
+  style: "currency",
+  currency: "EUR",
+  maximumFractionDigits: 0,
+});
+
+const eurWholeSignedFormatter = new Intl.NumberFormat("de-DE", {
+  style: "currency",
+  currency: "EUR",
+  maximumFractionDigits: 0,
+  signDisplay: "exceptZero",
+});
+
+/**
+ * 123456 → "1.234,56 €" (always de-DE, whatever the UI language).
+ * `whole`: round for display only ("1.235 €") — overview screens; totals stay in cents.
+ */
+export function formatEUR(cents: number, { signed = false, whole = false } = {}): string {
+  const formatter = whole
+    ? signed
+      ? eurWholeSignedFormatter
+      : eurWholeFormatter
+    : signed
+      ? eurSignedFormatter
+      : eurFormatter;
+  return formatter.format(cents / 100);
 }
 
 /** Cents → "1234,56" for an editable input. */

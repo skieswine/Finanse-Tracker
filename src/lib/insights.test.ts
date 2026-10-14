@@ -117,3 +117,12 @@ describe("budgetWarnings", () => {
     ]);
   });
 });
+
+describe("uncategorised spending", () => {
+  it("is excluded from increases and reported separately", async () => {
+    const { uncategorizedSpending } = await import("./insights");
+    const txs = [tx("2026-10-02", -15056, "Shop", null)];
+    expect(topCategoryIncreases(txs, kinds, "2026-10")).toEqual([]);
+    expect(uncategorizedSpending(txs, kinds, "2026-10")).toBe(15056);
+  });
+});

@@ -260,6 +260,7 @@ export const en = {
     increase: "Spending on “{category}” rose by {diff} (+{pct} %) compared with last month.",
     increaseNew: "New spending on “{category}”: {amount} — there was none last month.",
     noChanges: "No expense category grew noticeably compared with last month.",
+    uncategorized: "{amount} of this month's spending has no category — assign categories for more accurate insights.",
     subscriptions: "Subscriptions & recurring payments",
     subscription: "“{name}” looks like a subscription: {monthly} per month ≈ {yearly} per year.",
     subscriptionsTotal: "Recurring payments in total: {monthly} per month ≈ {yearly} per year.",

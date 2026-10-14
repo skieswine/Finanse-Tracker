@@ -21,7 +21,7 @@ export function SpendingDonut({ slices }: { slices: DonutSlice[] }) {
   const pct = (cents: number) => (total ? Math.round((cents / total) * 100) : 0);
 
   return (
-    <div className="grid items-center gap-4 sm:grid-cols-[180px_1fr]">
+    <div className="grid items-center gap-4 sm:grid-cols-[180px_minmax(0,1fr)]">
       <div className="relative mx-auto size-[180px]">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
@@ -42,7 +42,7 @@ export function SpendingDonut({ slices }: { slices: DonutSlice[] }) {
               ))}
             </Pie>
             <Tooltip
-              formatter={(value) => [formatEUR(Number(value)), ""]}
+              formatter={(value) => [formatEUR(Number(value), { whole: true }), ""]}
               separator=""
               contentStyle={{
                 background: "var(--popover)",
@@ -57,18 +57,18 @@ export function SpendingDonut({ slices }: { slices: DonutSlice[] }) {
         </ResponsiveContainer>
         <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
           <span className="text-xs text-muted-foreground">{t.dashboard.expenses}</span>
-          <span className="text-sm font-semibold tabular-nums">{formatEUR(total)}</span>
+          <span className="text-sm font-semibold tabular-nums">{formatEUR(total, { whole: true })}</span>
         </div>
       </div>
 
-      <ul className="grid gap-1.5 text-sm">
+      <ul className="grid min-w-0 gap-1.5 text-sm">
         {slices.map((s) => {
           const row = (
             <>
               <span aria-hidden="true" className="size-2.5 shrink-0 rounded-full" style={{ background: s.color }} />
               <span className="min-w-0 flex-1 truncate">{s.name}</span>
               <span className="tabular-nums text-muted-foreground">{pct(s.cents)}%</span>
-              <span className="w-24 text-right font-medium tabular-nums">{formatEUR(s.cents)}</span>
+              <span className="shrink-0 text-right font-medium tabular-nums">{formatEUR(s.cents, { whole: true })}</span>
             </>
           );
           return (

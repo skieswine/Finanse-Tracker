@@ -5,6 +5,7 @@ import {
   detectRecurring,
   topCategoryIncreases,
   topMerchants,
+  uncategorizedSpending,
   type InsightTx,
 } from "./insights";
 import { fmt, type Dictionary } from "./i18n/types";
@@ -48,6 +49,15 @@ export function buildInsights({ t, month, asOf, rows, categories, budgets }: Inp
         ? fmt(t.insights.increaseNew, { category: name(c.category_id), amount: formatEUR(c.current) })
         : fmt(t.insights.increase, { category: name(c.category_id), diff: formatEUR(c.diff), pct: c.pct }),
   }));
+
+  const uncategorized = uncategorizedSpending(rows, kinds, month);
+  if (uncategorized > 0) {
+    changes.push({
+      tone: "neutral",
+      href: `/transactions${filtersToQuery({ category: NO_CATEGORY, from: monthStart(month), to: monthEnd(month) })}`,
+      text: fmt(t.insights.uncategorized, { amount: formatEUR(uncategorized) }),
+    });
+  }
 
   const recurring = detectRecurring(rows, kinds, asOf);
   const subscriptions = recurring.map<Sentence>((r) => ({

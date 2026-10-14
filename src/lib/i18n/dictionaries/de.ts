@@ -260,6 +260,7 @@ export const de = {
     increase: "Die Ausgaben für „{category}“ sind um {diff} (+{pct} %) gegenüber dem Vormonat gestiegen.",
     increaseNew: "Neue Ausgaben für „{category}“: {amount} — im Vormonat gab es keine.",
     noChanges: "Keine Ausgabenkategorie ist gegenüber dem Vormonat deutlich gestiegen.",
+    uncategorized: "{amount} der Ausgaben in diesem Monat haben keine Kategorie — ordne sie zu, damit die Analyse genauer wird.",
     subscriptions: "Abos & regelmäßige Zahlungen",
     subscription: "„{name}“ sieht nach einem Abo aus: {monthly} pro Monat ≈ {yearly} pro Jahr.",
     subscriptionsTotal: "Regelmäßige Zahlungen insgesamt: {monthly} pro Monat ≈ {yearly} pro Jahr.",
