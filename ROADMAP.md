@@ -98,6 +98,13 @@
 - [x] Огляд: цілі євро; «Усі» праворуч (CardAction); легенда донату не обрізається; «без категорії» — окрема підказка, а не «нова категорія»
 - [x] Тести: **63** ✅
 
+## ⏭️ Наступне (домовлено на 2026-10-16)
+- [ ] **Вхід через Google** — через Supabase Auth (Google provider), **не** Firebase/Firestore (той вимагав би переписати бекенд).
+  1. Користувач: Google Cloud Console → OAuth consent screen + OAuth Client ID (Web); Authorized redirect URI = `https://cqhlezmpsdejefrnbbkt.supabase.co/auth/v1/callback`; ключі → Supabase → Authentication → Providers → Google; Supabase → URL Configuration: Site URL `https://finanse-tracker.vercel.app`, Redirect URLs + `http://localhost:3000/**`.
+  2. Код: кнопка «Увійти через Google» на `/login`, route `/auth/callback` (exchangeCodeForSession), proxy пропускає `/auth/*`, тексти ×4.
+  3. Реєстрація лишається вимкненою → увійти зможуть лише користувачі, додані вручну (той самий email прив'язується автоматично).
+- [ ] (опційно) Форма «Змінити пароль» перед тим, як давати доступ друзям.
+
 ## Розгортання (Vercel) — ✅ виконано 2026-10-15
 - Адреса: https://finanse-tracker.vercel.app · регіон функцій **fra1** (як і Supabase) · кожен push у `main` = автодеплой
 - Попередження в Build Logs (npm cache-dir, eslint deprecated, install-scripts tesseract/unrs-resolver) — нешкідливі
