@@ -31,9 +31,8 @@ export const ReviewRow = memo(function ReviewRow({ row, categories, dispatch, on
   return (
     <li
       className={cn(
-        // items-start: all inputs share the top line; captions (payee, "by rule")
-        // hang below without pushing neighbours off-centre.
-        "grid grid-cols-[auto_1fr_8rem] items-start gap-x-3 gap-y-2 border-l-4 border-transparent p-3",
+        // All controls are one line high (no captions under fields), so they centre cleanly.
+        "grid grid-cols-[auto_1fr_8rem] items-center gap-x-3 gap-y-2 border-l-4 border-transparent p-3",
         "md:grid-cols-[auto_9.5rem_8rem_1fr_13rem]",
         (low || cents === null) && "border-amber-500 bg-amber-500/5",
         row.duplicate === "exact" && "border-muted-foreground/40",
@@ -45,7 +44,7 @@ export const ReviewRow = memo(function ReviewRow({ row, categories, dispatch, on
         checked={row.include}
         onChange={(e) => update({ include: e.target.checked })}
         aria-label={t.importer.include}
-        className="mt-1.5 size-5 cursor-pointer accent-primary"
+        className="size-5 cursor-pointer accent-primary"
       />
 
       <Input
@@ -70,23 +69,32 @@ export const ReviewRow = memo(function ReviewRow({ row, categories, dispatch, on
         )}
       />
 
-      <div className="col-span-full grid gap-1 md:col-span-1">
-        <Input
-          id={id("description")}
-          aria-label={t.importer.description}
-          value={row.description}
-          title={row.description}
-          onChange={(e) => update({ description: e.target.value })}
-        />
-        {row.merchant && <p className="truncate px-1 text-xs text-muted-foreground">{row.merchant}</p>}
-      </div>
+      {/* Single line: the payee lives in the tooltip (it mostly repeats the description). */}
+      <Input
+        id={id("description")}
+        aria-label={t.importer.description}
+        value={row.description}
+        title={row.merchant ? `${row.description}\n→ ${row.merchant}` : row.description}
+        onChange={(e) => update({ description: e.target.value })}
+        className="col-span-full md:col-span-1"
+      />
 
-      <div className="col-span-full grid gap-1 md:col-span-1">
+      <div className="relative col-span-full md:col-span-1">
+        {/* "By rule" marker inside the select instead of a caption below it. */}
+        {row.categorySource === "rule" && (
+          <Wand2
+            aria-hidden="true"
+            className="pointer-events-none absolute top-1/2 left-2.5 z-10 size-3.5 -translate-y-1/2 text-muted-foreground"
+          />
+        )}
         <NativeSelect
-          aria-label={t.importer.category}
+          aria-label={
+            row.categorySource === "rule" ? `${t.importer.category} (${t.importer.fromRule})` : t.importer.category
+          }
+          title={row.categorySource === "rule" ? t.importer.fromRule : undefined}
           value={row.category}
           onChange={(e) => dispatch({ type: "setCategory", key: row.key, category: e.target.value })}
-          className="w-full"
+          className={cn("w-full", row.categorySource === "rule" && "[&_select]:pl-8")}
         >
           <NativeSelectOption value="">{t.importer.noCategory}</NativeSelectOption>
           {CATEGORY_KINDS.map((kind) => (
@@ -102,12 +110,6 @@ export const ReviewRow = memo(function ReviewRow({ row, categories, dispatch, on
           ))}
           <NativeSelectOption value={TRANSFER}>{t.importer.transfer}</NativeSelectOption>
         </NativeSelect>
-        {row.categorySource === "rule" && (
-          <p className="flex items-center gap-1 px-1 text-xs text-muted-foreground">
-            <Wand2 className="size-3" />
-            {t.importer.fromRule}
-          </p>
-        )}
       </div>
 
       {(low || cents === null || row.duplicate) && (
