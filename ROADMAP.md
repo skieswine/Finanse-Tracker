@@ -106,10 +106,10 @@
 - Можливо згодом: «мені винні»; авто-прив'язка імпортованих платежів до боргу за шаблоном
 
 ## ⏭️ Наступне (домовлено на 2026-10-16)
-- [ ] **Вхід через Google** — через Supabase Auth (Google provider), **не** Firebase/Firestore (той вимагав би переписати бекенд).
-  1. Користувач: Google Cloud Console → OAuth consent screen + OAuth Client ID (Web); Authorized redirect URI = `https://cqhlezmpsdejefrnbbkt.supabase.co/auth/v1/callback`; ключі → Supabase → Authentication → Providers → Google; Supabase → URL Configuration: Site URL `https://finanse-tracker.vercel.app`, Redirect URLs + `http://localhost:3000/**`.
-  2. Код: кнопка «Увійти через Google» на `/login`, route `/auth/callback` (exchangeCodeForSession), proxy пропускає `/auth/*`, тексти ×4.
-  3. Реєстрація лишається вимкненою → увійти зможуть лише користувачі, додані вручну (той самий email прив'язується автоматично).
+- [x] **Вхід через Google** — ✅ 2026-10-16, перевірено на сайті. Supabase Google provider; Google Cloud проєкт `finanse-tracker`, клієнт «Finly Web», режим **Testing** (увійти можуть лише Test users + лише акаунти, додані в Supabase; реєстрація вимкнена). Код: `signInWithGoogle` (server action), `/auth/callback`, proxy пропускає `/auth/*`.
+  - Екран згоди Google показує домен `cqhlezmpsdejefrnbbkt.supabase.co` — нормально; гарна назва лише з власним доменом (custom domain Supabase платний / верифікація бренду в Google потребує свого домену).
+  - Для друзів: додати їхній Gmail у Google → Audience → Test users **і** створити користувача в Supabase.
+- [x] **Назва застосунку: Finly** (усі 4 мови, manifest, offline-сторінка). На телефоні — перевстановити ярлик, щоб оновився підпис.
 - [ ] (опційно) Форма «Змінити пароль» перед тим, як давати доступ друзям.
 - [ ] **Скріни monobank погано розпізнаються** (відгук 2026-10-15). Причини: (1) OCR лише `deu` → кирилиця не читається; (2) формат застосунку mono інший: дата — окремим заголовком словами («Сьогодні», «Вчора», «12 жовтня»), назва + сума в рядку без дати, тисячі через пробіл (`1 245,50 ₴`), типографський мінус `−`.
   План: OCR `ukr+deu+eng` (`createWorker([...])` у `src/lib/import/extract.ts`); парсер/режим «скрін mono» (контекст дати із заголовків, суми з пробілами й `₴`); тести на зразках.
