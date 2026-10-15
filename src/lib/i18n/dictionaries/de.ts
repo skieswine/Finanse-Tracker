@@ -324,7 +324,7 @@ export const de = {
     chooseFile: "Datei auswählen",
     privacy:
       "Die Datei wird nur in deinem Browser verarbeitet und nirgendwohin hochgeladen. Gespeichert werden nur die Umsätze, die du bestätigst.",
-    ocrNote: "Für Fotos und Scans wird einmalig ein deutsches Texterkennungsmodell (einige MB) geladen.",
+    ocrNote: "Für Fotos, Screenshots und Scans werden einmalig Texterkennungsmodelle (Ukrainisch, Deutsch, Englisch — einige MB) geladen. monobank-Screenshots werden ebenfalls erkannt.",
     csvTip: "CSV-Exporte aus dem Online-Banking werden am zuverlässigsten erkannt.",
     account: "Importieren in Konto",
     currencyNote: "Beträge in der Datei gelten als {currency} (Kontowährung) und werden zum Kurs am jeweiligen Buchungstag in Euro umgerechnet.",
@@ -356,6 +356,7 @@ export const de = {
       yearGuessed: "Jahr automatisch ermittelt",
       noDescription: "keine Beschreibung",
       noHeader: "Spalten geschätzt",
+      relativeDate: "Datum („Heute“/„Gestern“) ab dem Importtag gerechnet",
     },
     fromRule: "per Regel",
     invalidAmount: "Ungültiger Betrag",

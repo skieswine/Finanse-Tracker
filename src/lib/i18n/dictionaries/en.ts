@@ -324,7 +324,7 @@ export const en = {
     chooseFile: "Choose file",
     privacy:
       "The file is processed only in your browser and is never uploaded. Only the transactions you confirm are saved.",
-    ocrNote: "For photos and scans, a German text-recognition model (a few MB) is downloaded once.",
+    ocrNote: "For photos, screenshots and scans, text-recognition models (Ukrainian, German, English — a few MB) are downloaded once. monobank screenshots are recognised too.",
     csvTip: "CSV exports from online banking are recognised most reliably.",
     account: "Import into account",
     currencyNote: "Amounts in the file are treated as {currency} (the account's currency) and converted to euros at each transaction's date.",
@@ -356,6 +356,7 @@ export const en = {
       yearGuessed: "year was inferred",
       noDescription: "no description",
       noHeader: "columns were guessed",
+      relativeDate: "date (“Today”/“Yesterday”) counted from the import day",
     },
     fromRule: "by rule",
     invalidAmount: "Invalid amount",

@@ -14,7 +14,8 @@ export type ParseWarning =
   | "signGuessed" // no sign / Soll-Haben marker found; guessed from keywords
   | "yearGuessed" // date had no year; inferred from the statement
   | "noDescription"
-  | "noHeader"; // table without a recognisable header row
+  | "noHeader" // table without a recognisable header row
+  | "relativeDate"; // "Today" / "Yesterday" — relative to the day of the import
 
 export type ParsedRow = {
   date: string; // YYYY-MM-DD
@@ -24,6 +25,8 @@ export type ParsedRow = {
   /** 0..1 — rows below LOW_CONFIDENCE are highlighted for review. */
   confidence: number;
   warnings: ParseWarning[];
+  /** Parser recognised a transfer between own accounts (e.g. "З єврової картки"). */
+  transfer?: boolean;
 };
 
 export const LOW_CONFIDENCE = 0.7;

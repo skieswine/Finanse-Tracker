@@ -19,6 +19,7 @@ const PENALTY: Record<ParseWarning, number> = {
   yearGuessed: 0.2,
   noDescription: 0.2,
   noHeader: 0.15,
+  relativeDate: 0.1,
 };
 
 function makeRow(

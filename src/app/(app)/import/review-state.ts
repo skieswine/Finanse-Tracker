@@ -59,8 +59,9 @@ export function buildReviewRows(
       amountInput: centsToInput(p.amount_cents),
       description: p.description,
       merchant: p.merchant,
-      category: rule?.category_id ?? "",
-      categorySource: rule ? "rule" : null,
+      // A transfer between own accounts recognised by the parser wins over rules.
+      category: p.transfer ? TRANSFER : (rule?.category_id ?? ""),
+      categorySource: !p.transfer && rule ? "rule" : null,
       confidence: p.confidence,
       warnings: p.warnings,
       duplicate,

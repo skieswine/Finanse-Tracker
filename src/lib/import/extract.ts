@@ -1,5 +1,5 @@
 // Client-only text extraction. Heavy libraries are loaded on demand, and the
-// file never leaves the browser. (Tesseract downloads its code and the "deu"
+// file never leaves the browser. (Tesseract downloads its code and the ukr/deu/eng
 // model from jsDelivr once; the image itself is processed locally.)
 
 import type { ExtractedDocument, SourceFileType } from "./types";
@@ -163,10 +163,13 @@ async function extractDocx(file: File): Promise<ExtractedDocument> {
 
 // ---------------------------------------------------------------- OCR
 
+// Ukrainian (monobank screenshots), German (statements), English (merchant names).
+const OCR_LANGUAGES = ["ukr", "deu", "eng"];
+
 async function ocr(images: Blob[], onProgress: OnProgress): Promise<string[]> {
   const { createWorker } = await import("tesseract.js");
   let page = 0;
-  const worker = await createWorker("deu", 1, {
+  const worker = await createWorker(OCR_LANGUAGES, 1, {
     logger: (m) => {
       if (m.status === "recognizing text") {
         onProgress({ stage: "ocr", progress: (page + m.progress) / images.length });
@@ -177,7 +180,7 @@ async function ocr(images: Blob[], onProgress: OnProgress): Promise<string[]> {
     const lines: string[] = [];
     for (; page < images.length; page++) {
       const { data } = await worker.recognize(images[page]);
-      lines.push(...data.text.split("\n"));
+      lines.push(...data.text.split(/\r?\n/));
     }
     return lines;
   } finally {
