@@ -53,6 +53,44 @@ export async function registerWithInvite(_prev: ActionState, formData: FormData)
   redirect("/");
 }
 
+/**
+ * Invite sign-up with Google: we can't know the Google account before OAuth,
+ * and public sign-ups stay disabled — so the person states their Gmail, we
+ * redeem the code and pre-create a passwordless account for it, then start
+ * Google sign-in. Supabase links the Google identity to that existing user.
+ */
+export async function registerWithGoogle(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const parsed = z.object({ code: inviteCode, email }).safeParse(formValues(formData));
+  if (!parsed.success) return { fieldErrors: toFieldErrors(parsed.error) };
+  const { code, email: mail } = parsed.data;
+
+  const admin = createAdminClient();
+  if (!admin) return { error: "notConfigured" };
+
+  const { data: redeemed } = await admin.rpc("redeem_invite", { p_code: code });
+  if (!redeemed) return { fieldErrors: { code: "inviteInvalid" } };
+
+  const { error } = await admin.auth.admin.createUser({ email: mail, email_confirm: true });
+  if (error) {
+    await admin.rpc("release_invite", { p_code: code });
+    return error.code === "email_exists" || error.status === 422
+      ? { fieldErrors: { email: "emailTaken" } }
+      : { error: "saveFailed" };
+  }
+
+  const supabase = await createClient();
+  const { data, error: oauthError } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo: `${await requestOrigin()}/auth/callback`,
+      // Pre-select the stated Gmail in Google's account chooser.
+      queryParams: { login_hint: mail, prompt: "select_account" },
+    },
+  });
+  if (oauthError || !data.url) redirect("/login?error=oauth");
+  redirect(data.url);
+}
+
 // ---------------------------------------------------------------- password
 
 export async function requestPasswordReset(_prev: ActionState, formData: FormData): Promise<ActionState> {

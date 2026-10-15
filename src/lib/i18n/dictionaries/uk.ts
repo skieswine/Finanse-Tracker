@@ -402,6 +402,11 @@ export const uk = {
     submit: "Зареєструватися",
     submitting: "Реєстрація…",
     haveAccount: "Вже є акаунт? Увійти",
+    modeGoogle: "Через Google",
+    modePassword: "Email і пароль",
+    gmail: "Ваш Gmail",
+    googleHint: "Далі відкриється Google — виберіть там саме цей акаунт. Пароль не потрібен.",
+    continueGoogle: "Продовжити з Google",
   },
   forgot: {
     title: "Відновлення пароля",

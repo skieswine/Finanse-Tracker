@@ -402,6 +402,11 @@ export const de = {
     submit: "Registrieren",
     submitting: "Registrierung…",
     haveAccount: "Schon ein Konto? Anmelden",
+    modeGoogle: "Mit Google",
+    modePassword: "E-Mail & Passwort",
+    gmail: "Deine Gmail-Adresse",
+    googleHint: "Als Nächstes öffnet sich Google — wähle dort genau dieses Konto. Kein Passwort nötig.",
+    continueGoogle: "Weiter mit Google",
   },
   forgot: {
     title: "Passwort zurücksetzen",

@@ -402,6 +402,11 @@ export const ru = {
     submit: "Зарегистрироваться",
     submitting: "Регистрация…",
     haveAccount: "Уже есть аккаунт? Войти",
+    modeGoogle: "Через Google",
+    modePassword: "Email и пароль",
+    gmail: "Ваш Gmail",
+    googleHint: "Дальше откроется Google — выберите там именно этот аккаунт. Пароль не нужен.",
+    continueGoogle: "Продолжить с Google",
   },
   forgot: {
     title: "Восстановление пароля",
