@@ -59,11 +59,15 @@ export const en = {
     submit: "Sign in",
     submitting: "Signing in…",
     logout: "Sign out",
+    or: "or",
+    google: "Sign in with Google",
+    googleRedirecting: "Redirecting to Google…",
     errors: {
       invalidEmail: "Enter a valid email",
       passwordRequired: "Enter your password",
       invalidCredentials: "Wrong email or password",
       generic: "Could not sign in. Please try again.",
+      oauth: "Google sign-in failed. This account may not have access — ask the owner to add your email.",
     },
   },
   theme: {

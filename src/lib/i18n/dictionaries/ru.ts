@@ -59,11 +59,15 @@ export const ru = {
     submit: "Войти",
     submitting: "Вход…",
     logout: "Выйти",
+    or: "или",
+    google: "Войти через Google",
+    googleRedirecting: "Переходим в Google…",
     errors: {
       invalidEmail: "Введите корректный email",
       passwordRequired: "Введите пароль",
       invalidCredentials: "Неверный email или пароль",
       generic: "Не удалось войти. Попробуйте ещё раз.",
+      oauth: "Не удалось войти через Google. У этого аккаунта может не быть доступа — попросите владельца добавить ваш email.",
     },
   },
   theme: {

@@ -59,11 +59,15 @@ export const uk = {
     submit: "Увійти",
     submitting: "Вхід…",
     logout: "Вийти",
+    or: "або",
+    google: "Увійти через Google",
+    googleRedirecting: "Переходимо до Google…",
     errors: {
       invalidEmail: "Введіть коректний email",
       passwordRequired: "Введіть пароль",
       invalidCredentials: "Невірний email або пароль",
       generic: "Не вдалося увійти. Спробуйте ще раз.",
+      oauth: "Не вдалося увійти через Google. Цей акаунт може не мати доступу — попросіть власника додати ваш email.",
     },
   },
   theme: {

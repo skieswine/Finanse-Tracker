@@ -59,11 +59,15 @@ export const de = {
     submit: "Anmelden",
     submitting: "Anmeldung…",
     logout: "Abmelden",
+    or: "oder",
+    google: "Mit Google anmelden",
+    googleRedirecting: "Weiterleitung zu Google…",
     errors: {
       invalidEmail: "Gib eine gültige E-Mail-Adresse ein",
       passwordRequired: "Gib dein Passwort ein",
       invalidCredentials: "E-Mail oder Passwort ist falsch",
       generic: "Anmeldung fehlgeschlagen. Bitte versuche es erneut.",
+      oauth: "Anmeldung mit Google fehlgeschlagen. Dieses Konto hat evtl. keinen Zugang — bitte den Besitzer, deine E-Mail hinzuzufügen.",
     },
   },
   theme: {
