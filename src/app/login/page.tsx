@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { PRIVACY } from "@/app/privacy/content";
 import { AuthCard } from "@/components/auth-card";
-import { getDictionary } from "@/lib/i18n/server";
+import { getDictionary, getLocale } from "@/lib/i18n/server";
 import { GoogleButton } from "./google-button";
 import { LoginForm } from "./login-form";
 
@@ -42,6 +43,9 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
           {t.auth.haveInvite}
         </Link>
       </div>
+      <Link href="/privacy" className="text-center text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline">
+        {PRIVACY[await getLocale()].title}
+      </Link>
     </AuthCard>
   );
 }

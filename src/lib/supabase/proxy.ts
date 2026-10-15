@@ -5,7 +5,9 @@ import type { Database } from "./database.types";
 
 // Reachable without a session: sign in, invite sign-up, password reset,
 // and /auth/callback (OAuth / reset-link return).
-const PUBLIC_PATHS = ["/login", "/register", "/forgot", "/auth"];
+const PUBLIC_PATHS = ["/login", "/register", "/forgot", "/auth", "/privacy"];
+/** Public pages that signed-in users may also open (no redirect to "/"). */
+const OPEN_PATHS = ["/privacy"];
 
 /**
  * Refreshes the auth session cookie and redirects:
@@ -53,7 +55,7 @@ export async function updateSession(request: NextRequest) {
   if (!isAuthenticated && !isPublic) {
     return redirectWithCookies(request, response, "/login");
   }
-  if (isAuthenticated && isPublic) {
+  if (isAuthenticated && isPublic && !OPEN_PATHS.includes(pathname)) {
     return redirectWithCookies(request, response, "/");
   }
 
