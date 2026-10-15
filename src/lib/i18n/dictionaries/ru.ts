@@ -2,7 +2,7 @@ import type { Dictionary } from "../types";
 
 export const ru = {
   app: {
-    name: "Финансы",
+    name: "Finly",
     description: "Личный учёт доходов, расходов и сбережений",
   },
   nav: {

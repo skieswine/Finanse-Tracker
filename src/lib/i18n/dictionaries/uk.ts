@@ -2,7 +2,7 @@
 // Placeholders like {amount} are filled with `fmt()` from ../types.
 export const uk = {
   app: {
-    name: "Фінанси",
+    name: "Finly",
     description: "Особистий облік доходів, витрат і заощаджень",
   },
   nav: {
