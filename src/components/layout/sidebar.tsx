@@ -16,10 +16,10 @@ export function Sidebar({ email }: { email: string | null }) {
 
   return (
     <aside className="sticky top-0 hidden h-dvh w-60 shrink-0 flex-col border-r bg-sidebar text-sidebar-foreground md:flex">
-      <div className="flex h-14 items-center gap-2 px-4 font-semibold">
+      <Link href="/" className="flex h-14 items-center gap-2 px-4 font-semibold hover:opacity-80">
         <Wallet className="size-5" />
         {t.app.name}
-      </div>
+      </Link>
 
       <div className="px-3 pb-3">
         <Link href="/transactions/new" className={buttonVariants({ className: "h-9 w-full" })}>
