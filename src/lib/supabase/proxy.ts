@@ -3,8 +3,9 @@ import { createServerClient } from "@supabase/ssr";
 import { getPublicEnv } from "@/lib/env";
 import type { Database } from "./database.types";
 
-// /auth/callback must be reachable before a session exists (OAuth return).
-const PUBLIC_PATHS = ["/login", "/auth"];
+// Reachable without a session: sign in, invite sign-up, password reset,
+// and /auth/callback (OAuth / reset-link return).
+const PUBLIC_PATHS = ["/login", "/register", "/forgot", "/auth"];
 
 /**
  * Refreshes the auth session cookie and redirects:

@@ -264,6 +264,36 @@ export type Database = {
         };
         Relationships: [];
       };
+      invite_codes: {
+        Row: {
+          code: string;
+          created_by: string | null;
+          note: string | null;
+          max_uses: number;
+          uses: number;
+          expires_at: string | null;
+          created_at: string;
+        };
+        Insert: {
+          code: string;
+          created_by?: string | null;
+          note?: string | null;
+          max_uses?: number;
+          uses?: number;
+          expires_at?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          code?: string;
+          created_by?: string | null;
+          note?: string | null;
+          max_uses?: number;
+          uses?: number;
+          expires_at?: string | null;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
       category_rules: {
         Row: {
           created_at: string;
@@ -339,7 +369,10 @@ export type Database = {
       };
     };
     Views: { [_ in never]: never };
-    Functions: { [_ in never]: never };
+    Functions: {
+      redeem_invite: { Args: { p_code: string }; Returns: boolean };
+      release_invite: { Args: { p_code: string }; Returns: undefined };
+    };
     Enums: {
       category_kind: "income" | "expense" | "savings";
       account_type: "checking" | "savings" | "cash" | "credit";

@@ -382,3 +382,22 @@ export async function getDebts(): Promise<Debt[]> {
     last_payment: paid.get(d.id)?.last || null,
   }));
 }
+
+export type Invite = Tables<"invite_codes"> & { expired: boolean };
+
+/** Invite codes (admins only; read with the service role). null = not an admin. */
+export async function getInvitesForAdmin(): Promise<Invite[] | null> {
+  const { createAdminClient, isAdminEmail } = await import("./supabase/admin");
+  const supabase = await createClient();
+  const { data } = await supabase.auth.getClaims();
+  const email = data?.claims?.email;
+  const admin = createAdminClient();
+  if (!admin || !isAdminEmail(typeof email === "string" ? email : null)) return null;
+  const { data: invites, error } = await admin
+    .from("invite_codes")
+    .select("*")
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  const now = Date.now();
+  return invites.map((i) => ({ ...i, expired: i.expires_at !== null && Date.parse(i.expires_at) < now }));
+}

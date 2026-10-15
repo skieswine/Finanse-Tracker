@@ -10,6 +10,7 @@ import {
   Tags,
   Target,
   Upload,
+  UserCog,
   type LucideIcon,
 } from "lucide-react";
 import type { Dictionary } from "@/lib/i18n/types";
@@ -41,7 +42,7 @@ export const bottomNavItems: NavItem[] = [
     href: "/more",
     labelKey: "more",
     icon: MoreHorizontal,
-    alsoActiveOn: ["/reports", "/categories", "/accounts", "/goals", "/debts", "/budgets"],
+    alsoActiveOn: ["/reports", "/categories", "/accounts", "/goals", "/debts", "/budgets", "/account"],
   },
 ];
 
@@ -57,4 +58,5 @@ export const settingsItems: NavItem[] = [
   { href: "/goals", labelKey: "goals", icon: PiggyBank },
   { href: "/debts", labelKey: "debts", icon: HandCoins },
   { href: "/budgets", labelKey: "budgets", icon: Target },
+  { href: "/account", labelKey: "account", icon: UserCog },
 ];

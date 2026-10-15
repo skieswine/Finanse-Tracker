@@ -1,10 +1,10 @@
 "use server";
 
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { getDictionary } from "@/lib/i18n/server";
+import { requestOrigin } from "./origin";
 
 export type SignInState = {
   error?: string;
@@ -62,10 +62,7 @@ export async function signOut() {
 
 /** Start "Sign in with Google": Supabase returns Google's consent URL. */
 export async function signInWithGoogle() {
-  const h = await headers();
-  const host = h.get("x-forwarded-host") ?? h.get("host");
-  const proto = h.get("x-forwarded-proto") ?? (host?.startsWith("localhost") ? "http" : "https");
-  const origin = `${proto}://${host}`;
+  const origin = await requestOrigin();
 
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signInWithOAuth({
