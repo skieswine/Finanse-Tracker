@@ -2,6 +2,7 @@ import { PageHeader } from "@/components/page-header";
 import { getAccounts, getCategories, getDebts, getGoals } from "@/lib/data";
 import { todayISO } from "@/lib/dates";
 import { getI18n } from "@/lib/i18n/server";
+import { DEFAULT_CATEGORY, localizeCategoryName } from "@/lib/default-categories";
 import { TX_TYPES, type TxType } from "@/lib/validation";
 import { BASE_CURRENCY, isCurrency } from "@/lib/currency";
 import { TransactionForm } from "../transaction-form";
@@ -13,7 +14,7 @@ function isTxType(value: unknown): value is TxType {
 export default async function NewTransactionPage({
   searchParams,
 }: PageProps<"/transactions/new">) {
-  const [{ t }, categories, accounts, goals, debts, params] = await Promise.all([
+  const [{ t, locale }, categories, accounts, goals, debts, params] = await Promise.all([
     getI18n(),
     getCategories(),
     getAccounts(),
@@ -29,7 +30,11 @@ export default async function NewTransactionPage({
   // ?debt=<id> preselects a repayment (used by "Make a payment" on debts),
   // with the default debt category when it exists.
   const debtId = typeof params.debt === "string" && debts.some((d) => d.id === params.debt) ? params.debt : "";
-  const debtCategory = debtId ? categories.find((c) => c.kind === "expense" && c.name === "Kredite & Schulden") : undefined;
+  const debtName = localizeCategoryName(DEFAULT_CATEGORY.debts, locale);
+  const debtCategory = debtId ? categories.find((c) => c.kind === "expense" && c.name === debtName) : undefined;
+  // ?category=<id> preselects a category (used by "Add subscription" in insights).
+  const categoryId =
+    typeof params.category === "string" && categories.some((c) => c.id === params.category) ? params.category : "";
   const goalId =
     typeof params.goal === "string" && goals.some((g) => g.id === params.goal) ? params.goal : "";
 
@@ -48,7 +53,7 @@ export default async function NewTransactionPage({
           date: todayISO(),
           description: "",
           merchant: "",
-          category_id: debtCategory?.id ?? "",
+          category_id: debtCategory?.id ?? categoryId,
           account_id: account?.id ?? "",
           savings_goal_id: goalId,
           debt_id: debtId,

@@ -9,8 +9,9 @@ import { useI18n } from "@/lib/i18n/client";
 export function AddFab() {
   const pathname = usePathname();
   const { t } = useI18n();
-  // Hidden on the transaction form and on import (it has its own sticky bar).
-  if (pathname.startsWith("/transactions/") || pathname.startsWith("/import")) return null;
+  // Only where adding a transaction is the obvious action; elsewhere a "+"
+  // would read as "add a budget/category/…" (those pages have their own button).
+  if (pathname !== "/" && pathname !== "/transactions") return null;
 
   return (
     <Link

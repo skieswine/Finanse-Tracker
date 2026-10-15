@@ -18,7 +18,7 @@ export default async function GoalsPage() {
   const addButton = (
     <Button size="lg" className="h-10">
       <Plus />
-      <span className="hidden sm:inline">{t.goals.add}</span>
+      {t.goals.add}
     </Button>
   );
 

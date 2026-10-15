@@ -34,24 +34,25 @@ export default async function BudgetsPage({ searchParams }: PageProps<"/budgets"
     (categoryById.get(a.category_id)?.name ?? "").localeCompare(categoryById.get(b.category_id)?.name ?? ""),
   );
 
+  const addBudget = (
+    <BudgetDialog
+      month={month}
+      categories={available}
+      trigger={
+        <Button size="lg" className="h-10">
+          <Plus />
+          {t.budgets.add}
+        </Button>
+      }
+    />
+  );
+
   return (
     <>
       <PageHeader
         title={t.budgets.title}
-        actions={
-          available.length > 0 && (
-            <BudgetDialog
-              month={month}
-              categories={available}
-              trigger={
-                <Button size="lg" className="h-10">
-                  <Plus />
-                  <span className="hidden sm:inline">{t.budgets.add}</span>
-                </Button>
-              }
-            />
-          )
-        }
+        // With no budgets yet the button sits in the empty state instead.
+        actions={sorted.length > 0 && available.length > 0 && addBudget}
       />
 
       <div className="mb-4 flex justify-center sm:justify-start">
@@ -59,7 +60,12 @@ export default async function BudgetsPage({ searchParams }: PageProps<"/budgets"
       </div>
 
       {sorted.length === 0 ? (
-        <EmptyState icon={Target} title={t.budgets.emptyTitle} description={t.budgets.emptyDescription} />
+        <EmptyState
+          icon={Target}
+          title={t.budgets.emptyTitle}
+          description={t.budgets.emptyDescription}
+          action={available.length > 0 && addBudget}
+        />
       ) : (
         <Card className="gap-0 py-0">
           <ul className="divide-y">

@@ -32,7 +32,7 @@ export const ReviewRow = memo(function ReviewRow({ row, categories, dispatch, on
     <li
       className={cn(
         // All controls are one line high (no captions under fields), so they centre cleanly.
-        "grid grid-cols-[auto_1fr_8rem] items-center gap-x-3 gap-y-2 border-l-4 border-transparent p-3",
+        "grid grid-cols-[auto_minmax(0,1fr)_7.5rem] items-center gap-x-3 gap-y-2 border-l-4 border-transparent p-3",
         "md:grid-cols-[auto_9.5rem_8rem_1fr_13rem]",
         (low || cents === null) && "border-amber-500 bg-amber-500/5",
         row.duplicate === "exact" && "border-muted-foreground/40",
@@ -53,7 +53,8 @@ export const ReviewRow = memo(function ReviewRow({ row, categories, dispatch, on
         aria-label={t.importer.date}
         value={row.date}
         onChange={(e) => e.target.value && update({ date: e.target.value })}
-        className="md:order-none"
+        // iOS gives date inputs a wide intrinsic size and centred text; keep it inside its cell.
+        className="min-w-0 appearance-none [&::-webkit-date-and-time-value]:text-left"
       />
 
       <Input
@@ -64,7 +65,7 @@ export const ReviewRow = memo(function ReviewRow({ row, categories, dispatch, on
         value={row.amountInput}
         onChange={(e) => update({ amountInput: e.target.value })}
         className={cn(
-          "text-right tabular-nums",
+          "min-w-0 text-right tabular-nums",
           cents !== null && cents > 0 && "text-emerald-600 dark:text-emerald-400",
         )}
       />

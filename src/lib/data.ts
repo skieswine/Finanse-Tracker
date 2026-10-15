@@ -2,6 +2,9 @@ import "server-only";
 import { createClient } from "./supabase/server";
 import { monthStart, nextMonthStart } from "./dates";
 import { toCents } from "./money";
+import { localizeCategoryName } from "./default-categories";
+import { getLocale } from "./i18n/server";
+import { INTL_LOCALE } from "./i18n/types";
 import type { Tables } from "./supabase/database.types";
 import type { InsightTx } from "./insights";
 import type { SummaryTx } from "./summary";
@@ -47,7 +50,12 @@ export async function getCategories(): Promise<Category[]> {
     .order("kind")
     .order("name");
   if (error) throw error;
-  return data;
+  // Seeded defaults are shown in the UI language; re-sort by the shown name.
+  const locale = await getLocale();
+  const collator = new Intl.Collator(INTL_LOCALE[locale]);
+  return data
+    .map((c) => ({ ...c, name: localizeCategoryName(c.name, locale) }))
+    .sort((a, b) => a.kind.localeCompare(b.kind) || collator.compare(a.name, b.name));
 }
 
 export async function getAccounts(): Promise<Account[]> {

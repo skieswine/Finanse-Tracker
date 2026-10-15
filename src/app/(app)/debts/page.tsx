@@ -18,7 +18,7 @@ export default async function DebtsPage() {
   const addButton = (
     <Button size="lg" className="h-10">
       <Plus />
-      <span className="hidden sm:inline">{t.debts.add}</span>
+      {t.debts.add}
     </Button>
   );
 

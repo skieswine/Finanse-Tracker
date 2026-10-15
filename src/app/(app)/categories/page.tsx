@@ -20,7 +20,7 @@ export default async function CategoriesPage() {
             trigger={
               <Button size="lg" className="h-10">
                 <Plus />
-                <span className="hidden sm:inline">{t.categories.add}</span>
+                {t.categories.add}
               </Button>
             }
           />

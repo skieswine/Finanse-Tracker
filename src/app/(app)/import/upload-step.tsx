@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { FileUp, ShieldCheck } from "lucide-react";
+import { FileSpreadsheet, FileUp, ScanText, ShieldCheck, type LucideIcon } from "lucide-react";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { Label } from "@/components/ui/label";
 import { useI18n } from "@/lib/i18n/client";
@@ -17,6 +17,8 @@ type UploadStepProps = {
   error?: string;
   currency: string;
 };
+
+const FORMATS = ["CSV", "PDF", "DOCX", "PNG", "JPG"];
 
 const ACCEPT = ".csv,.txt,.pdf,.docx,.png,.jpg,.jpeg,.webp,.bmp,image/*,text/csv,application/pdf";
 
@@ -72,6 +74,13 @@ export function UploadStep({ accounts, accountId, onAccountChange, onFile, error
         </span>
         <span className="font-medium">{t.importer.uploadTitle}</span>
         <span className="max-w-md text-sm text-muted-foreground">{t.importer.uploadHint}</span>
+        <span className="flex flex-wrap justify-center gap-1.5" aria-hidden="true">
+          {FORMATS.map((f) => (
+            <span key={f} className="rounded-md border bg-background px-2 py-0.5 font-mono text-xs text-muted-foreground">
+              {f}
+            </span>
+          ))}
+        </span>
         <span className="mt-1 inline-flex h-9 items-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground">
           {t.importer.chooseFile}
         </span>
@@ -95,14 +104,31 @@ export function UploadStep({ accounts, accountId, onAccountChange, onFile, error
         </p>
       )}
 
-      <div className="grid gap-2 text-sm text-muted-foreground">
-        <p className="flex gap-2">
-          <ShieldCheck className="mt-0.5 size-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
+      <ul className="grid gap-3 sm:grid-cols-3">
+        <Tip icon={ShieldCheck} tone="text-emerald-600 bg-emerald-500/10 dark:text-emerald-400" title={t.importer.tipPrivacyTitle}>
           {t.importer.privacy}
-        </p>
-        <p>{t.importer.csvTip}</p>
-        <p>{t.importer.ocrNote}</p>
-      </div>
+        </Tip>
+        <Tip icon={FileSpreadsheet} tone="text-series-income bg-series-income/10" title={t.importer.tipCsvTitle}>
+          {t.importer.csvTip}
+        </Tip>
+        <Tip icon={ScanText} tone="text-series-expense bg-series-expense/10" title={t.importer.tipOcrTitle}>
+          {t.importer.ocrNote}
+        </Tip>
+      </ul>
     </div>
+  );
+}
+
+function Tip({ icon: Icon, tone, title, children }: { icon: LucideIcon; tone: string; title: string; children: string }) {
+  return (
+    <li className="flex gap-3 rounded-xl border bg-card p-4">
+      <span className={cn("flex size-9 shrink-0 items-center justify-center rounded-lg", tone)}>
+        <Icon className="size-4.5" />
+      </span>
+      <div className="grid gap-1">
+        <p className="text-sm font-medium">{title}</p>
+        <p className="text-sm text-muted-foreground">{children}</p>
+      </div>
+    </li>
   );
 }

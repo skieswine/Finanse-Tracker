@@ -13,7 +13,7 @@ export default async function AccountsPage() {
   const addButton = (
     <Button size="lg" className="h-10">
       <Plus />
-      <span className="hidden sm:inline">{t.accounts.add}</span>
+      {t.accounts.add}
     </Button>
   );
 
