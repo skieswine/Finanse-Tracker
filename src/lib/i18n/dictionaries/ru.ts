@@ -392,6 +392,7 @@ export const ru = {
     undo: "Удалить импорт",
     undoTitle: "Удалить импорт «{file}»?",
     undoDescription: "Будет удалено {count} транзакций из этого файла. Это действие нельзя отменить.",
+    statementCurrency: "Валюта выписки",
     tipPrivacyTitle: "Приватно",
     tipCsvTitle: "Точнее всего — CSV",
     tipOcrTitle: "Фото и скриншоты",

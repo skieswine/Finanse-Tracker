@@ -42,4 +42,4 @@ yarn-error.log*
 next-env.d.ts
 
 # copied from node_modules by scripts/copy-pdf-worker.mjs
-/public/pdf.worker.min.mjs
+/public/pdf.worker.legacy.min.mjs

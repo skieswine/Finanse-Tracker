@@ -392,6 +392,7 @@ export const de = {
     undo: "Import löschen",
     undoTitle: "Import „{file}“ löschen?",
     undoDescription: "{count} Umsätze aus dieser Datei werden gelöscht. Dies kann nicht rückgängig gemacht werden.",
+    statementCurrency: "Währung des Auszugs",
     tipPrivacyTitle: "Privat",
     tipCsvTitle: "Am besten: CSV",
     tipOcrTitle: "Fotos & Screenshots",

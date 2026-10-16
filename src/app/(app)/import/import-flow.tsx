@@ -42,9 +42,11 @@ export function ImportFlow({ categories, accounts, rules, batches }: ImportFlowP
   const [accountId, setAccountId] = useState(accounts.length === 1 ? accounts[0].id : "");
   const [saving, startSaving] = useTransition();
   const sortedRules = useMemo(() => sortRules(rules), [rules]);
-  // Statement amounts are in the selected account's currency (EUR without an account).
+  // Statement amounts are in the selected account's currency; without an account,
+  // in the currency the parser implies (monobank → UAH) or one picked on review.
+  const [fileCurrency, setFileCurrency] = useState<Currency>(BASE_CURRENCY);
   const accountCurrency = accounts.find((a) => a.id === accountId)?.currency;
-  const currency: Currency = isCurrency(accountCurrency) ? accountCurrency : BASE_CURRENCY;
+  const currency: Currency = isCurrency(accountCurrency) ? accountCurrency : fileCurrency;
 
   async function handleFile(file: File) {
     const type = detectFileType(file);
@@ -57,6 +59,8 @@ export function ImportFlow({ categories, accounts, rules, batches }: ImportFlowP
       const doc = await extractDocument(file, type, (progress) => setPhase({ step: "processing", progress }));
       const parser = pickParser(doc);
       const parsed = parser.parse(doc);
+      const statementCurrency = isCurrency(accountCurrency) ? accountCurrency : (parser.currency ?? BASE_CURRENCY);
+      setFileCurrency(parser.currency ?? BASE_CURRENCY);
       if (parsed.length === 0) {
         setPhase({ step: "upload", error: t.importer.errors.noRows });
         return;
@@ -71,7 +75,7 @@ export function ImportFlow({ categories, accounts, rules, batches }: ImportFlowP
       const dates = parsed.map((p) => p.date).sort();
       const duplicates = await checkDuplicates({ hashes, from: dates[0], to: dates[dates.length - 1] });
 
-      dispatch({ type: "reset", rows: buildReviewRows(parsed, hashes, duplicates, sortedRules, currency) });
+      dispatch({ type: "reset", rows: buildReviewRows(parsed, hashes, duplicates, sortedRules, statementCurrency) });
       setPhase({ step: "review", fileName: file.name, fileType: type, parserId: parser.id });
     } catch (error) {
       const code = error instanceof ExtractError ? error.code : "failed";
@@ -148,6 +152,8 @@ export function ImportFlow({ categories, accounts, rules, batches }: ImportFlowP
         <ReviewStep
           fileName={phase.fileName}
           currency={currency}
+          // The account fixes the currency; without one the user may correct it.
+          onCurrencyChange={isCurrency(accountCurrency) ? undefined : setFileCurrency}
           rows={rows}
           dispatch={dispatch}
           categories={categories}

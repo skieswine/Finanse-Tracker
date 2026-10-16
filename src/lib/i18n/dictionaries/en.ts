@@ -392,6 +392,7 @@ export const en = {
     undo: "Delete import",
     undoTitle: "Delete import “{file}”?",
     undoDescription: "{count} transactions from this file will be deleted. This can't be undone.",
+    statementCurrency: "Statement currency",
     tipPrivacyTitle: "Private",
     tipCsvTitle: "CSV works best",
     tipOcrTitle: "Photos & screenshots",

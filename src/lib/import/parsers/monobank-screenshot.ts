@@ -168,6 +168,8 @@ export function parseMonobankScreenshot(lines: string[], today = todayISO()): Pa
 export const monobankScreenshotParser: StatementParser = {
   id: "monobank-screenshot",
   name: "monobank (screenshot)",
+  // Hryvnia card; the user can still switch the currency on the review screen.
+  currency: "UAH",
   detect(doc: ExtractedDocument) {
     if (doc.kind !== "text") return 0;
     const today = todayISO();

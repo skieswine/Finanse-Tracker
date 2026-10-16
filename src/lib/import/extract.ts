@@ -87,9 +87,11 @@ async function extractCsv(file: File): Promise<ExtractedDocument> {
 type TextItem = { str: string; transform: number[]; width: number };
 
 async function extractPdf(file: File, onProgress: OnProgress): Promise<ExtractedDocument> {
-  const pdfjs = await import("pdfjs-dist");
+  // Legacy build: the modern one needs very recent JS features and fails in
+  // Safari (iPhone, Mac) while working in Chrome.
+  const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
   // Copied to /public by scripts/copy-pdf-worker.mjs (postinstall).
-  pdfjs.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.mjs";
+  pdfjs.GlobalWorkerOptions.workerSrc = "/pdf.worker.legacy.min.mjs";
 
   const pdf = await pdfjs.getDocument({ data: new Uint8Array(await file.arrayBuffer()) }).promise;
   const lines: string[] = [];

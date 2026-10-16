@@ -392,6 +392,7 @@ export const uk = {
     undo: "Видалити імпорт",
     undoTitle: "Видалити імпорт «{file}»?",
     undoDescription: "Буде видалено {count} транзакцій з цього файлу. Цю дію не можна скасувати.",
+    statementCurrency: "Валюта виписки",
     tipPrivacyTitle: "Приватно",
     tipCsvTitle: "Найточніше — CSV",
     tipOcrTitle: "Фото та скріни",

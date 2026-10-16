@@ -8,7 +8,8 @@ import { createRule } from "@/lib/actions/import";
 import { ruleMatches } from "@/lib/import/rules";
 import { useI18n } from "@/lib/i18n/client";
 import { fmt } from "@/lib/i18n/types";
-import { formatMoney } from "@/lib/currency";
+import { CURRENCIES, formatMoney, isCurrency, type Currency } from "@/lib/currency";
+import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { cn } from "@/lib/utils";
 import type { Category } from "@/lib/data";
 import { ReviewRow } from "./review-row";
@@ -18,6 +19,7 @@ type ReviewStepProps = {
   fileName: string;
   /** Currency of the statement amounts. */
   currency: string;
+  onCurrencyChange?: (currency: Currency) => void;
   rows: Row[];
   dispatch: Dispatch<ReviewAction>;
   categories: Category[];
@@ -27,7 +29,7 @@ type ReviewStepProps = {
   error?: string;
 };
 
-export function ReviewStep({ fileName, currency, rows, dispatch, categories, onConfirm, onCancel, saving, error }: ReviewStepProps) {
+export function ReviewStep({ fileName, currency, onCurrencyChange, rows, dispatch, categories, onConfirm, onCancel, saving, error }: ReviewStepProps) {
   const { t } = useI18n();
   const [onlyFlagged, setOnlyFlagged] = useState(false);
   const [ruleMessage, setRuleMessage] = useState<string>();
@@ -93,7 +95,24 @@ export function ReviewStep({ fileName, currency, rows, dispatch, categories, onC
 
   return (
     <div className="grid gap-4">
-      <p className="text-sm text-muted-foreground">{fmt(t.importer.found, { count: rows.length, file: fileName })}</p>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <p className="text-sm text-muted-foreground">{fmt(t.importer.found, { count: rows.length, file: fileName })}</p>
+        {onCurrencyChange && (
+          <label className="flex items-center gap-2 text-sm">
+            {t.importer.statementCurrency}
+            <NativeSelect
+              value={currency}
+              onChange={(e) => isCurrency(e.target.value) && onCurrencyChange(e.target.value)}
+            >
+              {CURRENCIES.map((c) => (
+                <NativeSelectOption key={c} value={c}>
+                  {c}
+                </NativeSelectOption>
+              ))}
+            </NativeSelect>
+          </label>
+        )}
+      </div>
 
       {/* Selection toolbar: explicit buttons instead of a lone checkbox. */}
       <div className="flex flex-wrap items-center gap-2">

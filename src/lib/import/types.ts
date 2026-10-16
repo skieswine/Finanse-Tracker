@@ -1,3 +1,5 @@
+import type { Currency } from "@/lib/currency";
+
 // Statement import pipeline (all client-side):
 //   File → extract (csv/pdf/docx/image) → ExtractedDocument
 //        → StatementParser → ParsedRow[] → rules → review → save
@@ -40,4 +42,6 @@ export interface StatementParser {
   name: string;
   detect(doc: ExtractedDocument): number;
   parse(doc: ExtractedDocument): ParsedRow[];
+  /** Currency the format implies (e.g. monobank → UAH); otherwise the account decides. */
+  currency?: Currency;
 }

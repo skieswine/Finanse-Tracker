@@ -3,7 +3,7 @@
 // - pages and API responses (your financial data) are never cached;
 // - when offline, navigations fall back to /offline.html.
 
-const VERSION = "v1";
+const VERSION = "v2";
 const STATIC_CACHE = `static-${VERSION}`;
 const PRECACHE = ["/offline.html", "/icons/192.png", "/icons/512.png"];
 
@@ -26,7 +26,7 @@ function isStaticAsset(url) {
     url.origin === self.location.origin &&
     (url.pathname.startsWith("/_next/static/") ||
       url.pathname.startsWith("/icons/") ||
-      url.pathname === "/pdf.worker.min.mjs")
+      url.pathname === "/pdf.worker.legacy.min.mjs")
   );
 }
 
