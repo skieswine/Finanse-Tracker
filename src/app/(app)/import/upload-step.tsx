@@ -15,6 +15,8 @@ type UploadStepProps = {
   onAccountChange: (id: string) => void;
   onFile: (file: File) => void;
   error?: string;
+  /** Technical cause, small print under the error. */
+  errorDetail?: string;
   currency: string;
 };
 
@@ -22,7 +24,7 @@ const FORMATS = ["CSV", "PDF", "DOCX", "PNG", "JPG"];
 
 const ACCEPT = ".csv,.txt,.pdf,.docx,.png,.jpg,.jpeg,.webp,.bmp,image/*,text/csv,application/pdf";
 
-export function UploadStep({ accounts, accountId, onAccountChange, onFile, error, currency }: UploadStepProps) {
+export function UploadStep({ accounts, accountId, onAccountChange, onFile, error, errorDetail, currency }: UploadStepProps) {
   const { t } = useI18n();
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
@@ -99,9 +101,10 @@ export function UploadStep({ accounts, accountId, onAccountChange, onFile, error
       </label>
 
       {error && (
-        <p role="alert" className="rounded-lg bg-destructive/10 px-4 py-3 text-sm text-destructive">
-          {error}
-        </p>
+        <div role="alert" className="grid gap-1 rounded-lg bg-destructive/10 px-4 py-3 text-sm text-destructive">
+          <p>{error}</p>
+          {errorDetail && <p className="font-mono text-xs break-all opacity-80">{errorDetail}</p>}
+        </div>
       )}
 
       <ul className="grid gap-3 sm:grid-cols-3">

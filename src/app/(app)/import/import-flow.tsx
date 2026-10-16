@@ -23,7 +23,7 @@ import { ImportHistory } from "./import-history";
 import { UploadStep } from "./upload-step";
 
 type Phase =
-  | { step: "upload"; error?: string }
+  | { step: "upload"; error?: string; detail?: string }
   | { step: "processing"; progress: ExtractProgress | "checking" }
   | { step: "review"; fileName: string; fileType: SourceFileType; parserId: string; error?: string }
   | { step: "done"; count: number };
@@ -54,9 +54,12 @@ export function ImportFlow({ categories, accounts, rules, batches }: ImportFlowP
       setPhase({ step: "upload", error: t.importer.errors.unsupported });
       return;
     }
+    // Which step failed, shown with the error so device-specific failures can be diagnosed.
+    let stage = "read";
     try {
       setPhase({ step: "processing", progress: { stage: "reading", progress: 0 } });
       const doc = await extractDocument(file, type, (progress) => setPhase({ step: "processing", progress }));
+      stage = "parse";
       const parser = pickParser(doc);
       const parsed = parser.parse(doc);
       const statementCurrency = isCurrency(accountCurrency) ? accountCurrency : (parser.currency ?? BASE_CURRENCY);
@@ -70,6 +73,7 @@ export function ImportFlow({ categories, accounts, rules, batches }: ImportFlowP
         return;
       }
 
+      stage = "check";
       setPhase({ step: "processing", progress: "checking" });
       const hashes = await dedupeHashes(parsed);
       const dates = parsed.map((p) => p.date).sort();
@@ -79,7 +83,13 @@ export function ImportFlow({ categories, accounts, rules, batches }: ImportFlowP
       setPhase({ step: "review", fileName: file.name, fileType: type, parserId: parser.id });
     } catch (error) {
       const code = error instanceof ExtractError ? error.code : "failed";
-      setPhase({ step: "upload", error: code === "empty" ? t.importer.errors.empty : t.importer.errors.failed });
+      // Only the error type/message (library errors, no statement content).
+      const detail = error instanceof Error ? `${stage}: ${error.name}: ${error.message}`.slice(0, 200) : `${stage}: ${String(error).slice(0, 100)}`;
+      setPhase({
+        step: "upload",
+        error: code === "empty" ? t.importer.errors.empty : t.importer.errors.failed,
+        detail: code === "empty" ? undefined : detail,
+      });
     }
   }
 
@@ -123,6 +133,7 @@ export function ImportFlow({ categories, accounts, rules, batches }: ImportFlowP
             onFile={handleFile}
             currency={currency}
             error={phase.error}
+            errorDetail={phase.detail}
           />
           <ImportHistory batches={batches} />
         </>
