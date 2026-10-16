@@ -201,4 +201,4 @@
 - Кнопки «змінити/видалити» в списках: 44×44 px на телефоні з відступом, кошик червоний (`row-actions.tsx`).
 - Лого «Finly» (мобільна шапка й бічна панель) веде на Огляд.
 - Імпорт без рахунку: валюту підказує парсер (`StatementParser.currency`, monobank → UAH); на екрані перевірки — вибір «Валюта виписки». З рахунком валюта, як і раніше, береться з рахунку.
-- PDF у Safari (iPhone/Mac) не читався: pdf.js 6 (modern build) потребує найновіших JS-фіч. Тепер `pdfjs-dist/legacy/build` + `/pdf.worker.legacy.min.mjs`; кеш service worker → `v2`.
+- PDF у Safari (iPhone/Mac) не читався: pdf.js робить `for await` по `ReadableStream`, а Safari цього не вміє ("undefined is not a function (near ...t of e...)"). Фікс: поліфіл `src/lib/import/stream-polyfill.ts` + обгортка-worker `public/pdf.worker.mjs` (імпортує `/pdf.worker.legacy.min.mjs` і додає поліфіл). Відтворено в Node без нативного ітератора. Кеш SW → `v3`. На екрані помилки імпорту є технічна деталь (етап + тип помилки).
